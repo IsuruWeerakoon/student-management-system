@@ -55,7 +55,10 @@ cd student-management-system
 ### 3. Backend Setup
 ```bash
 cd backend
+<<<<<<< HEAD
 npm install
+=======
+>>>>>>> 457c7861de309482722613acc995ac1e96913874
 npm start
 
 # Set up your MySQL database and connection in a .env file by editing the file in backend folder
@@ -68,6 +71,12 @@ npm start
 ### 4. Frontend Setup
 ```bash
 cd frontend
+<<<<<<< HEAD
 npm install
 npm run dev
 ```
+=======
+npm run dev
+```
+
+>>>>>>> 457c7861de309482722613acc995ac1e96913874
