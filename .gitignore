@@ -7,8 +7,8 @@ node_modules/
 # Build files
 build/
 
-#Uploads
-uploads
-
 # Logs
 npm-debug.log
+
+# Local database or uploads (if applicable)
+uploads/
