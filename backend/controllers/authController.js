@@ -1,11 +1,11 @@
 const AuthModel = require('../models/authModel.js');
 const jwt = require('jsonwebtoken');
 const env = require('dotenv');
-const { authenticateUser } = require('../middleware/authMiddleware.js');
+const bcrypt = require('bcryptjs');
 env.config();
 
 // Login Controller
-exports.userLogin(function (req, res) {
+exports.userLogin = function (req, res) {
     const { email, password } = req.body;
     AuthModel.userLogin(email, function (err, data) {
         if (err) {
@@ -27,19 +27,19 @@ exports.userLogin(function (req, res) {
             res.json({ message: 'Login successful' });
         });
     });
-});
+};
 
 // User Verification Contoller
-exports.userVerification(authenticateUser, function (req, res) {
+exports.userVerification = function (req, res) {
     const userRole = req.user.userRole;
     if (!userRole) {
         return res.status(401).json({ message: 'Unauthorized' });
     }
     res.json({ role: userRole });
-});
+};
 
 //User Logout Controller
-exports.userLogout(async function (req, res) {
+exports.userLogout= async function (req, res) {
     try {
         res.clearCookie('token');
         res.status(200).json({ message: 'Logged out successfully' });
@@ -48,4 +48,4 @@ exports.userLogout(async function (req, res) {
         console.error('Logout failed:', err);
         res.status(500).json({ message: 'Failed to log out' });
     }
-});
+};
