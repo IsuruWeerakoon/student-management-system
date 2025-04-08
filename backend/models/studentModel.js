@@ -1,4 +1,4 @@
-const db = require('./dbModel.js');
+const db = require('../dbModel.js');
 
 const Student = {
     // Get all students (Admin Only)

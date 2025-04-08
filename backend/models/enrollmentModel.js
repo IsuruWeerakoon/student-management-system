@@ -1,7 +1,6 @@
-const db = require('./dbModel.js');
+const db = require('../dbModel.js');
 
 const Enrollment = {
-
     getEnrolledCourses: function (studentId, callback) {
         const sql_query = 'SELECT course_id FROM enrollments WHERE student_id = ?';
         db.query(sql_query, [studentId], callback);
@@ -26,7 +25,6 @@ const Enrollment = {
         const sql_query = 'SELECT id, name, email FROM students WHERE role = "student"';
         db.query(sql_query, callback);
     }
-
 };
 
 module.exports = Enrollment;

@@ -1,4 +1,4 @@
-const db = require('./dbModel.js');  // Your MySQL connection
+const db = require('../dbModel.js');
 
 const Auth = {
     userLogin : function(email, callback){

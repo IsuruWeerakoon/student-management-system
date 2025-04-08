@@ -1,4 +1,4 @@
-const db = require('../models/dbModel.js');
+const db = require('../dbModel.js');
 
 const Results = {
   getAllResults: function (callback) {
