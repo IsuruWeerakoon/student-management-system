@@ -1,56 +1,12 @@
 const express = require('express');
-const bcrypt = require('bcryptjs');
 const router = express.Router();
-const authModel = require('../models/authModel.js');
-const jwt = require('jsonwebtoken');
-const env = require('dotenv');
-const { authenticateUser } = require('../middleware/authMiddleware.js');
-env.config();
+const authController = require('../controllers/authController.js');
 
 // Login Route
-router.post('/login', function (req, res) {
-    const { email, password } = req.body;
-    authModel.userLogin(email, function (err, data) {
-        if (err) {
-            return res.status(500).json(err);
-        }
-        if (data.length === 0) {
-            return res.status(401).json({ message: 'Invalid Email Address' });
-        }
-        const user = data[0];
-        bcrypt.compare(password, user.password, function (err, isMatch) {
-            if (err) {
-                return res.status(500).json(err);
-            }
-            if (!isMatch) {
-                return res.status(401).json({ message: 'Invalid Password' });
-            }
-            const token = jwt.sign({ userID: user.id, userRole: user.role }, process.env.SECRET_KEY, { expiresIn: '8h' });
-            res.cookie('token', token, { httpOnly: true, secure: false });
-            res.json({ message: 'Login successful' });
-        });
-    });
-});
-
+router.post('/login', authController.userLogin);
 // Get logged-in user (for checking authentication)
-router.get('/user', authenticateUser, function (req, res) {
-    const userRole = req.user.userRole;
-    if (!userRole) {
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
-    res.json({ role: userRole });
-});
-
+router.get('/user', authController.userVerification);
 //Logout
-router.post('/logout', async function (req, res) {
-    try {
-        res.clearCookie('token');
-        res.status(200).json({ message: 'Logged out successfully' });
-    }
-    catch (err) {
-        console.error('Logout failed:', err);
-        res.status(500).json({ message: 'Failed to log out' });
-    }
-});
+router.post('/logout', authController.userLogout);
 
 module.exports = router;

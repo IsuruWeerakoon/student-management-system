@@ -1,0 +1,1 @@
+const db = require('../models/examModel.js');
