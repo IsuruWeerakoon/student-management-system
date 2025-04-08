@@ -2,11 +2,11 @@ const enrollmentModel = require('../models/enrollmentModel.js');
 
 exports.get_All_Course_And_Enrollments = function (req, res) {
     const studentId = req.user.userID;
-    Enrollment.getAllCourses(function (err, allCourses) {
+    enrollmentModel.getAllCourses(function (err, allCourses) {
         if (err) {
             return res.status(500).send(err);
         }
-        Enrollment.getEnrolledCourses(studentId, function (err2, enrolled) {
+        enrollmentModel.getEnrolledCourses(studentId, function (err2, enrolled) {
             if (err2) {
                 return res.status(500).send(err2);
             }
@@ -20,7 +20,7 @@ exports.student_Enroll = function (req, res) {
     const studentId = req.user.userID;
     const { courseId } = req.body;
 
-    Enrollment.enrollInCourse(studentId, courseId, function (err) {
+    enrollmentModel.enrollInCourse(studentId, courseId, function (err) {
         if (err) {
             return res.status(500).send(err);
         }
@@ -32,7 +32,7 @@ exports.student_Unenroll = function (req, res) {
     const studentId = req.user.userID;
     const { courseId } = req.body;
 
-    Enrollment.unenrollFromCourse(studentId, courseId, function (err) {
+    enrollmentModel.unenrollFromCourse(studentId, courseId, function (err) {
         if (err) {
             return res.status(500).send(err);
         }
@@ -41,7 +41,7 @@ exports.student_Unenroll = function (req, res) {
 };
 
 exports.admin_Get_All_Students = function (req, res) {
-    Enrollment.getAllStudents(function (err, result) {
+    enrollmentModel.getAllStudents(function (err, result) {
         if (err) {
             return res.status(500).send(err);
         }
@@ -52,11 +52,11 @@ exports.admin_Get_All_Students = function (req, res) {
 exports.admin_Get_All_Course_And_Enrollments = function (req, res) {
     const studentId = req.params.studentId;
 
-    Enrollment.getAllCourses(function (err, allCourses) {
+    enrollmentModel.getAllCourses(function (err, allCourses) {
         if (err) {
             return res.status(500).send(err);
         }
-        Enrollment.getEnrolledCourses(studentId, function (err2, enrolled) {
+        enrollmentModel.getEnrolledCourses(studentId, function (err2, enrolled) {
             if (err2) {
                 return res.status(500).send(err2);
             }
@@ -68,7 +68,7 @@ exports.admin_Get_All_Course_And_Enrollments = function (req, res) {
 
 exports.admin_Enroll_Student = function (req, res) {
     const { studentId, courseId } = req.body;
-    Enrollment.enrollInCourse(studentId, courseId, function (err) {
+    enrollmentModel.enrollInCourse(studentId, courseId, function (err) {
         if (err) {
             return res.status(500).send(err);
         }
@@ -78,7 +78,7 @@ exports.admin_Enroll_Student = function (req, res) {
 
 exports.admin_Unenroll_Student = function (req, res) {
     const { studentId, courseId } = req.body;
-    Enrollment.unenrollFromCourse(studentId, courseId, function (err) {
+    enrollmentModel.unenrollFromCourse(studentId, courseId, function (err) {
         if (err) {
             return res.status(500).send(err);
         }
