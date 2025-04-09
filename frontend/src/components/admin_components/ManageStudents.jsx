@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import '../../App.css';
 import StudentTable from './manage_students_components/StudentTable';
 import StudentModal from './manage_students_components/StudentModal';
-import SearchInput from './manage_students_components/SearchInput';
+import SearchInput from './manage_students_components/StudentSearch';
 
 const ManageStudents = function () {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -113,7 +113,9 @@ const ManageStudents = function () {
                     </div>
                 </div>
             </div>
+
             <SearchInput value={searchTerm} onChange={handleChange}/>
+            
             <div className="table-container">
                 {
                     searchTerm.trim() !== '' ? (

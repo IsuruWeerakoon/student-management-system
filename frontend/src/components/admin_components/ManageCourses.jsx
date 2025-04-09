@@ -5,6 +5,9 @@ import { useSearchParams } from 'react-router-dom';
 import API_BASE_URL from '../../config/apiConfig';
 import { toast } from 'react-toastify'
 import '../../App.css';
+import CourseTable from './manage_course_components/CourseTable';
+import CourseModel from './manage_course_components/CourseModel';
+import SearchCourse from './manage_course_components/CourseSearch';
 
 const ManageCourses = function () {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -107,9 +110,8 @@ const ManageCourses = function () {
                     <button className='btn btn-success' onClick={goToCourseRegister}>Register a New Course</button>
                 </div>
             </div>
-            <div className="form-group">
-                <input type="text" placeholder="Search Courses" value={searchTerm} onChange={handleChange} />
-            </div>
+
+            <SearchCourse value={searchTerm} onChange={handleChange} />
 
             <div className='table-container'>
                 {searchTerm.trim() !== '' ? (
@@ -125,22 +127,7 @@ const ManageCourses = function () {
                         </thead>
                         <tbody>
                             {
-                                courseData.length > 0 ? (
-                                    courseData.map(function (course) {
-                                        return (
-                                            <tr key={course.id}>
-                                                <td>{course.course_name}</td>
-                                                <td>{course.course_description}</td>
-                                                <td>{course.course_period}</td>
-                                                <td><button className='btn btn-update' onClick={function () { navigate(`/course_update/${course.id}`) }}>Edit</button></td>
-                                                <td><button className='btn btn-delete' onClick={function () { handleDelete(course.id) }}>Delete</button></td>
-                                            </tr>)
-                                    })
-                                ) : (
-                                    <tr>
-                                        <td colSpan="3">No Results Found</td>
-                                    </tr>
-                                )
+                                <CourseTable courseData={courseData} handleDelete={handleDelete} />
                             }
                         </tbody>
                     </table>
@@ -152,43 +139,8 @@ const ManageCourses = function () {
                 }
             </div>
 
-
             {showModal && (
-                <div className="modal">
-                    <div className="modal-content">
-                        <div className="close-container">
-                            <button className='btn close-btn' onClick={function () { setShowModal(false) }}>X</button>
-                        </div>
-                        <h2>Registered Course Details</h2>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Course Name</th>
-                                    <th>Course Description</th>
-                                    <th>Course Period</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {
-                                    courseData.length > 0 ? (
-                                        courseData.map(function (data) {
-                                            return (
-                                                <tr key={data.id}>
-                                                    <td>{data.course_name}</td>
-                                                    <td>{data.course_description}</td>
-                                                    <td>{data.course_period}</td>
-                                                </tr>)
-                                        })
-                                    ) : (
-                                        <tr>
-                                            <td colSpan="3">No Results Found</td>
-                                        </tr>
-                                    )
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <CourseModel courseData={courseData} onClose={function () { setShowModal(false) }} />
             )}
         </div>
     );
