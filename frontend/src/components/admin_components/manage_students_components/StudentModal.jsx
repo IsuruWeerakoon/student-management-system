@@ -1,7 +1,7 @@
 import React from 'react'
 import API_BASE_URL from '../../../config/apiConfig.js'
 
-function StudentModal(studentData, onClose) {
+function StudentModal({studentData, onClose}) {
   return (
     <div className="modal">
       <div className="modal-content">

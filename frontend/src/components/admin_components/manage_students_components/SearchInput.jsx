@@ -1,6 +1,6 @@
 import React from 'react'
 
-function SearchInput(value, onChange) {
+function SearchInput({value, onChange}) {
   return (
     <div className="form-group">
       <input

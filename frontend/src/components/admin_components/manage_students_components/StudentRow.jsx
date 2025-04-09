@@ -17,8 +17,8 @@ function StudentRow({ student, handleDelete }) {
           />
         </div>
       </td>
-      <td><button className='btn btn-' onClick={function () { navigate(`/student_update/${student.id}`) }}>Edit</button></td>
-      <td><button className='btn btn-' onClick={function () { handleDelete(student.id) }}>Delete</button></td>
+      <td><button className='btn btn-update' onClick={function () { navigate(`/student_update/${student.id}`) }}>Edit</button></td>
+      <td><button className='btn btn-delete' onClick={function () { handleDelete(student.id) }}>Delete</button></td>
     </tr>
   )
 }

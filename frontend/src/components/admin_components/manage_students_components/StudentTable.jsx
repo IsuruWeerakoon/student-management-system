@@ -1,7 +1,7 @@
 import React from 'react'
 import StudentRow from './StudentRow.jsx';
 
-function StudentTable(studentData, handleDelete) {
+function StudentTable({studentData, handleDelete}) {
     if (studentData.length === 0) {
         return (
             <tr>
