@@ -100,7 +100,6 @@ function AdminEnrollment() {
                         </tbody>
                     </table>
                 </div>
-
             )}
             <div className='button-container'>
                 <button className='btn btn-cancel' onClick={function () { navigate('/admin-dashboard') }}>Back</button>
