@@ -179,35 +179,6 @@ img {
   overflow-x: auto;
 }
 
-/* .modal {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: fixed;
-  padding-top: 75px;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  z-index: 999;
-  overflow-y: auto;
-} */
-
-/* .modal-content {
-  position: relative;
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  max-width: 750px;
-  width: 100%;
-  min-width: 300px;
-  min-height: 200px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-  overflow-y: auto;
-} */
-
-
 .modal {
   display: flex;
   justify-content: center;
@@ -235,7 +206,6 @@ img {
   overflow-y: auto;  /* 👈 enables internal scroll if needed */
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
 }
-
 
 .modal-login {
   background: white;
@@ -280,7 +250,6 @@ img {
 
 .form-group label {
   width: 150px;
-  /* Adjust width as needed */
   text-align: left;
   margin-right: 10px;
   font-weight: bold;
@@ -307,7 +276,6 @@ img {
   gap: 10px;
   margin-top: 2px;
 }
-
 
 .table-container {
   width: 100%;
@@ -390,4 +358,145 @@ tr:nth-child(even) {
 .past-exam {
   background-color: #f0f0f0;
   color: #969494;
+}
+
+
+
+.timetable-container {
+  overflow-x: auto;
+  margin-top: 2rem;
+}
+
+.timetable-grid {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 700px;
+}
+
+.timetable-grid th,
+.timetable-grid td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
+  min-width: 100px;
+}
+
+.timetable-grid th {
+  background: #007bff;
+  color: white;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.timetable-grid td.occupied {
+  background-color: #d1e7dd;
+  font-weight: bold;
+  color: #16a05f;
+}
+
+
+.notification-badge {
+  position: relative;
+  font-weight: bold;
+}
+
+.badge {
+  background: red;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 50%;
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  font-size: 12px;
+}
+
+.message-list {
+  list-style: none;
+  padding: 0;
+}
+
+.message-card {
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.message-date {
+  font-size: 1rem;
+  color: #666262;
+}
+
+.message-body {
+  margin-top: 10px;
+}
+
+.message-reply {
+  margin-top: 10px;
+  background-color: #e0f7e9;
+  padding: 10px;
+  border-left: 5px solid #34d33a;
+  border-radius: 8px;
+}
+
+.reply-form {
+  margin-top: 10px;
+}
+
+.reply-textarea {
+  width: 97.5%;
+  height: 40px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  resize: vertical;
+  margin-bottom: 10px;
+}
+
+.btn-reply {
+  background-color: #35ad39;
+  color: white;
+}
+
+.btn-reply:hover {
+  background-color: #28bb2f;
+}
+
+
+.timetable-grid td.break {
+  background-color: #d68282;
+  font-style: italic;
+  text-align: center;
+  color: #c46565;
+}
+.timetable-grid td.occupied {
+  background-color: #cfe2ff;
+  font-weight: bold;
+}
+.time {
+  font-size: 0.8em;
+  color: #666;
+}
+
+
+.highlight-username {
+  color: #2a72e5;           /* Soft blue tone */
+  font-weight: bold;
+  background-color: #eaf3ff; /* Light blue background */
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 1.25rem;
+  transition: background-color 0.3s ease;
+}
+
+.highlight-username:hover {
+  background-color: #d4e7ff; /* Slightly deeper on hover */
 }

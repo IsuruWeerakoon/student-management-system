@@ -94,7 +94,7 @@ const ManageStudents = function () {
         <div className='container'>
             <div>
                 <h1>Admin Dashboard</h1>
-                <h3>Manage Students</h3>
+                <h3>Manage Users</h3>
 
                 <div className='table-container'>
                     <div className='button-container'>

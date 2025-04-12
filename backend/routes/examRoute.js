@@ -7,12 +7,16 @@ const { authenticateUser, authorizeAdmin } = require('../middleware/authMiddlewa
 router.get('/', authenticateUser, authorizeAdmin, examController.getAllExams);
 
 // Admin: Create exam
-router.post('/', authenticateUser, authorizeAdmin, examController.registerExam);
+router.post('/', authenticateUser, examController.registerExam);
 
 // Admin: Update exam
-router.put('/:examId', authenticateUser, authorizeAdmin, examController.updateExam);
+router.put('/:examId', authenticateUser, examController.updateExam);
 
 // Student: View exams for their enrolled courses
 router.get('/studentdata', authenticateUser, examController.getExamsForStudents);
+
+router.get('/:id', authenticateUser, examController.getExamsForCourse);
+
+router.delete('/:examId', authenticateUser, examController.deleteExamsUsingID);
 
 module.exports = router;

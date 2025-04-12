@@ -37,10 +37,10 @@ const AdminDashboard = function ({ onLogout }) {
         <div className='container'>
             <button className='logout-button' onClick={onLogout}> <FiLogOut size={18} />Logout</button>
             <div>
-                <h1>Admin Dashboard</h1>
+                <h3>Welcome <span className='highlight-username'>Admin</span> to the Dashboard</h3>
 
                 <div className='button-container'>
-                    <button className='btn btn-register' onClick={goToManageStudents}>Manage Students</button>
+                    <button className='btn btn-register' onClick={goToManageStudents}>Manage Users</button>
                 </div>
 
                 <div className='button-container'>

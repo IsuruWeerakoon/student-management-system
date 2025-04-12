@@ -37,6 +37,9 @@ const Login = function ({ onLogin }) {
             if (response.data.role === 'admin') {
                 navigate('/admin-dashboard');
             }
+            else if(response.data.role === 'teacher'){
+                navigate('/teacher-dashboard');
+            }
             navigate('/student-dashboard');
         }
         catch (err) {

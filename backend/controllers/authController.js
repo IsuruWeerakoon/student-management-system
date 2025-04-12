@@ -32,10 +32,11 @@ exports.userLogin = function (req, res) {
 // User Verification Contoller
 exports.userVerification = function (req, res) {
     const userRole = req.user.userRole;
+    const userID = req.user.userID;
     if (!userRole) {
         return res.status(401).json({ message: 'Unauthorized' });
     }
-    res.json({ role: userRole });
+    res.json({ role: userRole, id: userID });
 };
 
 //User Logout Controller

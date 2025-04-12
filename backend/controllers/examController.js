@@ -65,3 +65,23 @@ exports.getExamsForStudents = function (req, res) {
         res.json(results);
     });
 };
+
+exports.getExamsForCourse = function(req, res){
+    const courseID = req.params.id;
+    examModel.getExamsByCourseID(courseID, function(err, data){
+        if(err){
+            return res.status(500).send(err);
+        }
+        res.json(data);
+    });
+};
+
+exports.deleteExamsUsingID = function(req, res){
+    const examID = req.params.examId;
+    examModel.deleteExamsByExamID(examID, function(err, data){
+        if(err){
+            return res.status(500).send(err);
+        }
+        res.json(data);
+    });
+};

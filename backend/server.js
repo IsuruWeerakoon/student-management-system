@@ -12,6 +12,8 @@ const courseRoutes = require('./routes/courseRoute.js');
 const enrollmentRoutes = require('./routes/enrollmentRoute.js');
 const examRoute = require('./routes/examRoute.js');
 const resultRoute = require('./routes/resultRoute.js');
+const teacherRoute = require('./routes/teacherRoute.js');
+const messageRoute = require('./routes/messageRoute.js');
 
 const app = express();
 app.use(cookieParser());
@@ -34,6 +36,8 @@ app.use('/api', courseRoutes);
 app.use('/api', enrollmentRoutes);
 app.use('/api/exams', examRoute);
 app.use('/api/results', resultRoute);
+app.use('/api', teacherRoute);
+app.use('/api', messageRoute);
 
 //Test API for the BackEnd
 app.get('/', function(req, res){

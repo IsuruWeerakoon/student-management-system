@@ -63,7 +63,34 @@ const Results = {
         WHERE results.student_id = ?
     `;
     db.query(query, [studentId], callback);
+}, 
+
+getAllExistingResultsForExam: function (examId, callback) {
+  const query = `SELECT student_id, results FROM results WHERE exam_id = ?`;
+  db.query(query, [examId], function (err, result) {
+      if (err) return callback(err);
+      callback(null, result); // array of { student_id, results }
+  });
+},
+
+insertOrUpdateResults: function (examId, resultsArray, callback) {
+  if (!resultsArray || resultsArray.length === 0) return callback(null);
+
+  const values = resultsArray.map(r => [r.student_id, examId, r.result]);
+
+  const query = `
+      INSERT INTO results (student_id, exam_id, results)
+      VALUES ?
+      ON DUPLICATE KEY UPDATE results = VALUES(results)
+  `;
+
+  db.query(query, [values], function (err) {
+      if (err) return callback(err);
+      callback(null);
+  });
 }
+
+
   
 };
 module.exports = Results;

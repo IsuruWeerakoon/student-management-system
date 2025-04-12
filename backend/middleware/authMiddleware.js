@@ -24,4 +24,11 @@ function authorizeAdmin(req, res, next) {
     next();
 }
 
-module.exports = { authenticateUser, authorizeAdmin };
+function authorizeTeacher(req, res, next) {
+    if (req.user.userRole !== 'teacher') {
+        return res.status(403).json({ message: 'Access denied. Only Teachers can Perform this Task' });
+    }
+    next();
+}
+
+module.exports = { authenticateUser, authorizeAdmin, authorizeTeacher };

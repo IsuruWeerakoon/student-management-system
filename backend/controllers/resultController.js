@@ -47,3 +47,25 @@ exports.getExistingResults = function (req, res) {
         res.json(result);
     });
 };
+
+exports.getAllExistingResults = function (req, res) {
+    const { examId } = req.params;
+
+    resultsModel.getAllExistingResultsForExam(examId, function (err, result) {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: err });
+        }
+        res.json(result);
+    });
+};
+
+
+
+exports.submitOrUpdateResults = function (req, res) {
+    const { exam_id, results } = req.body;
+    resultsModel.insertOrUpdateResults(exam_id, results, function (err) {
+        if (err) return res.status(500).json({ error: err });
+        res.json({ message: 'Results submitted or updated successfully.' });
+    });
+};
