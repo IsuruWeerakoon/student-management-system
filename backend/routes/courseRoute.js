@@ -1,27 +1,33 @@
 const express = require('express');
 const router = express.Router();
 const courseController = require('../controllers/courseController.js');
-const { authenticateUser, authorizeAdmin } = require('../middleware/authMiddleware.js');
+const { authenticateUser, authorizeRoles} = require('../middleware/authMiddleware.js');
 
 // Get all courses (Admin Only)
-router.get('/courses', authenticateUser, courseController.getAllCourse);
+// uses in AdminExams.jsx, ManageCourses.jsx, 
+router.get('/courses', authenticateUser, authorizeRoles('admin'), courseController.getAllCourse);
+// Get specific courses for Teacher or Admin
+//Used in TeacherExams.jsx (Teacher), ManageCourses.jsx(Admin)
+router.get('/courses/:id', authenticateUser, authorizeRoles('admin', 'teacher'), courseController.getCourseByParamID);
+// Add new courses (Admin Only)
+// ManageCourses.jsx (Admin)
+router.post('/courses', authenticateUser, authorizeRoles('admin'), courseController.registerCourse);
+// Update existing courses (Admin)
+// ManageCourses.jsx (Admin)
+router.put('/courses/:id', authenticateUser, authorizeRoles('admin'), courseController.updateCourse);
+// Delete courses (Admin Only)
+// ManageCourses.jsx (Admin)
+router.delete('/courses/:id', authenticateUser, authorizeRoles('admin'), courseController.deleteCourse);
+
+
+
 
 // Get specific courses record for Student Dashboard 
-router.get('/courses/record', authenticateUser, courseController.getCourseByTokenID);
+// uses Nowhere
+// router.get('/courses/record', authenticateUser, courseController.getCourseByTokenID);
+// router.get('/courses/search', authenticateUser, authorizeAdmin, courseController.searchCourse);
+//
 
-// Add new courses (Admin Only)
-router.post('/courses', authenticateUser, authorizeAdmin, courseController.registerCourse);
 
-// GET /courses/search?query=mark
-router.get('/courses/search', authenticateUser, authorizeAdmin, courseController.searchCourse);
-
-// Get specific courses (Admin and Student)
-router.get('/courses/:id', authenticateUser, courseController.getCourseByParamID);
-
-// Update existing courses (Both Users)
-router.put('/courses/:id', authenticateUser, authorizeAdmin, courseController.updateCourse);
-
-// Delete courses (Admin Only)
-router.delete('/courses/:id', authenticateUser, authorizeAdmin, courseController.deleteCourse);
 
 module.exports = router;

@@ -1,31 +1,82 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { FiLogOut } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
-import API_BASE_URL from '../config/apiConfig';
 import { toast } from 'react-toastify';
-import '../App.css';
+
+import ProfileModal from './user_components/common/ProfileModal.jsx';
+import ChangePasswordModal from './user_components/common/ChangePasswordModal.jsx';
+import MessageTeacherModal from './user_components/student/MessageTeacherModal.jsx';
+import ViewAllMessagesModal from './user_components/student/ViewAllMessagesModal.jsx';
+import EnrollmentModal from './user_components/student/EnrollmentModal.jsx';
+import ProfilePanel from './user_components/common/ProfilePanel.jsx';
+import { isPastExam, getDaysRemaining, handleDate } from '../components/utils.js'
+
+import API_BASE_URL from '../config/apiConfig';
 
 // StudentDashboard Component for Viewing Courses, Exams, and Results
 const StudentDashboard = function ({ onLogout }) {
-  const [studentData, setStudentData] = useState({ name: '', email: '', phone: '', dob: '', gender: '', city: '' });
+  const baseAPI = axios.create({ baseURL: API_BASE_URL, withCredentials: true });
+  const [studentData, setStudentData] = useState([]);
+  const [studentId, setStudentId] = useState(null);
   const [exams, setExams] = useState([]);
   const [results, setResults] = useState([]);
-  const baseAPI = axios.create({ baseURL: API_BASE_URL, withCredentials: true });
-  const navigate = useNavigate();
-  const [studentId, setStudentId] = useState(null);
+  const [courses, setCourses] = useState([]);
+  const [enrolledIds, setEnrolledIds] = useState([]);
+  const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
 
+  const [messageText, setMessageText] = useState('');
+  const [teacherId, setTeacherId] = useState('');
+  const [teacherList, setTeacherList] = useState([]);
+  const [myMessages, setMyMessages] = useState([]);
+  const [profileView, setProfileView] = useState(null);
+  const [userRole, setUserRole] = useState([]);
 
+  const [viewAllMessagesModal, setViewAllMessagesModal] = useState(false);
+  const [messageModal, setMessageModal] = useState(false);
+  const [enrollmentModal, setEnrollmentModal] = useState(false);
+  const [passwordChangeModal, setPasswordChangeModal] = useState(false);
+  const [profileModal, setProfileModal] = useState(false);
+  const [showSidePanel, setShowSidePanel] = useState(false);
+
+  const panelRef = useRef(null);
 
   useEffect(function () {
-    baseAPI.get('/api/auth/user')
-      .then(function (res) {
-        if (res.data.role === 'student') {
-          setStudentId(res.data.id);
-        }
+    function handleClickOutside(event) {
+      if (panelRef.current && !panelRef.current.contains(event.target)) {
+        setShowSidePanel(false);
+      }
+    }
+    if (showSidePanel) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return function () {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showSidePanel]);
+
+  useEffect(function () {
+    baseAPI.get(`/api/auth/user`)
+      .then(function (response) {
+        setUserRole(response.data.role);
+        setStudentId(response.data.id);
       })
       .catch(function (err) {
-        console.error('Error fetching user info', err);
+        console.error('Error fetching user role:', err);
+      });
+  }, []);
+
+  useEffect(function () {
+    baseAPI.get(`/api/`)
+      .then(function (res) {
+        setCourses(res.data.allCourses);
+        const uniqueEnrolled = [...new Set(res.data.enrolledCourseIds)];
+        setEnrolledIds(uniqueEnrolled);
+      })
+      .catch(function (err) {
+        console.error(err);
+        toast.error(err.response?.data?.message)
       });
   }, []);
 
@@ -34,10 +85,14 @@ const StudentDashboard = function ({ onLogout }) {
   }, []);
 
   useEffect(function () {
-    baseAPI.get('/api/exams/studentdata')
+    fetchMessages();
+  }, [studentId]);
+
+  useEffect(function () {
+    baseAPI.get(`/api/exams/studentdata`)
       .then(function (res) {
         const sortedExams = res.data.sort(function (a, b) {
-          return new Date(b.exam_date) - new Date(a.exam_date);
+          return new Date(a.exam_date) - new Date(b.exam_date);
         });
         setExams(sortedExams);
       })
@@ -46,49 +101,15 @@ const StudentDashboard = function ({ onLogout }) {
       });
   }, []);
 
-
   useEffect(function () {
-    baseAPI.get('/api/results/student')
+    baseAPI.get(`/api/results/student`)
       .then(function (res) {
         setResults(res.data)
       });
   }, []);
 
-  async function fetchStudentData() {
-    try {
-      const response = await baseAPI.get('/api/students/record');
-      setStudentData(response.data);
-    }
-    catch (err) {
-      console.error('Error fetching data:', err);
-      toast.error(err.response?.data?.message);
-    }
-  };
-
-  function handleDate(DATE) { return DATE.split('T')[0]; };
-
-
-  function isPastExam(dateStr) {
-    const today = new Date();
-    const examDate = new Date(dateStr);
-    return examDate < today.setHours(0, 0, 0, 0);
-  }
-
-  function getDaysRemaining(dateStr) {
-    const today = new Date();
-    const examDate = new Date(dateStr);
-    const diffTime = examDate - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  }
-
-
-  const [messageText, setMessageText] = useState('');
-  const [teacherId, setTeacherId] = useState(''); // Optional: dropdown for teachers
-  const [teacherList, setTeacherList] = useState([]);
-
   useEffect(function () {
-    baseAPI.get('/api/teachers')
+    baseAPI.get(`/api/teachers`)
       .then(function (res) {
         setTeacherList(res.data)
       })
@@ -97,11 +118,46 @@ const StudentDashboard = function ({ onLogout }) {
       });
   }, []);
 
+  async function fetchStudentData() {
+    try {
+      const response = await baseAPI.get(`/api/students/record`);
+      setStudentData(response.data);
+    }
+    catch (err) {
+      console.error('Error fetching data:', err);
+      toast.error(err.response?.data?.message);
+    }
+  };
 
+  function handleEnroll(courseId) {
+    if (enrolledIds.includes(courseId)) {
+      return toast.warn('You are already enrolled in this course.');
+    }
+    baseAPI.post(`/api/enroll`, { courseId })
+      .then(function (res) {
+        setEnrolledIds([...enrolledIds, courseId]);
+        toast.success("Enrolled in the Course Successfully..");
+      })
+      .catch(function (err) {
+        console.error(err);
+        toast.error(err.response?.data?.message);
+      });
+  }
+
+  function handleUnenroll(courseId) {
+    baseAPI.post(`/api/unenroll`, { courseId })
+      .then(function (res) {
+        setEnrolledIds(enrolledIds.filter(function (id) { id !== courseId }));
+      })
+      .catch(function (err) {
+        console.error(err);
+        toast.error(err.response?.data?.message);
+      });
+  }
 
   function handleSendMessage(e) {
     e.preventDefault();
-    baseAPI.post('/api/messages/send', {
+    baseAPI.post(`/api/messages/send`, {
       sender_id: studentId, // from login session
       receiver_id: teacherId,
       sender_role: 'student',
@@ -110,14 +166,15 @@ const StudentDashboard = function ({ onLogout }) {
       .then(function () {
         toast.success('Message sent');
         setMessageText('');
+        setMessageModal(false);
+        fetchMessages();
       })
-      .catch(function (err) { console.error(err) });
+      .catch(function (err) {
+        console.error(err)
+      });
   };
 
-
-  const [myMessages, setMyMessages] = useState([]);
-
-  useEffect(function () {
+  function fetchMessages() {
     if (!studentId) return; // wait until we have studentId
     baseAPI.get(`/api/messages/student/${studentId}`)
       .then(function (res) {
@@ -126,199 +183,271 @@ const StudentDashboard = function ({ onLogout }) {
       .catch(function (err) {
         console.error(err)
       });
-  }, [studentId]);
+  }
 
-  const [messageModal, setMessageModal] = useState(false);
+  async function handleUpdate(e) {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("name", studentData.name);
+    formData.append("email", studentData.email);
+    formData.append("phone", studentData.phone);
+    formData.append("city", studentData.city);
+    if (studentData.profile) {
+      formData.append("file", studentData.profile)
+    }
+    try {
+      await baseAPI.put(`/api/students/${studentId}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      toast.success('Profile Updated Successfully..');
+      setProfileModal(false);
+      fetchStudentData();
+      setProfileView(null);
+    }
+    catch (err) {
+      console.error('Error updating data:', err);
+      toast.error(err.response?.data?.message);
+      fetchStudentData();
+    }
+  };
+
+  async function handlePasswordModelUpdate(e) {
+    e.preventDefault();
+    if (passwords.newPassword !== passwords.confirmNewPassword) {
+      toast.warn('New Passwords do not Match!');
+      return;
+    }
+    try {
+      const response = await baseAPI.post(`/api/students/account/${studentId}`, passwords);
+      toast.success(response.data.message + " Please Login Now..");
+      setPasswordChangeModal(false);
+      if (userRole !== 'admin') {
+        setTimeout(async function () {
+          await onLogout();
+        }, 3200);
+      }
+    }
+    catch (error) {
+      toast.error(error.response?.data?.message);
+    }
+  };
+
+  function handleChange(e) {
+    setStudentData({ ...studentData, [e.target.name]: e.target.value });
+  };
+
+  function handleFileChange(e) {
+    const profileImage = e.target.files[0];
+    profilePreview(profileImage);
+    setStudentData({ ...studentData, profile: profileImage });
+  };
+
+  function profilePreview(profileImage) {
+    if (profileImage) {
+      const imageURL = URL.createObjectURL(profileImage);
+      setProfileView(imageURL);
+    }
+  };
+
+  function handlePasswordModelChange(e) {
+    setPasswords({ ...passwords, [e.target.name]: e.target.value });
+  };
 
   return (
-    <div className='container'>
-      <button className="logout-button" onClick={onLogout}><FiLogOut size={18} />Logout</button>
+    <div className='dashboard-container'>
       <h3>Welcome <span className='highlight-username'>{studentData.name}</span> to the Student's Dashboard</h3>
 
       {studentData ? (
-        <div className='model'>
-          <div className='profileUpdate'>
+        <div>
+          <div className='profile-container' onClick={function () { setShowSidePanel(!showSidePanel); }}>
             <img
               src={API_BASE_URL + '/' + studentData.file_path}
-              style={{ width: '150px', height: '150px', objectFit: 'cover', borderRadius: '50%' }}
+              className='profile-image'
             />
-          </div>
-          <br />
-          <table>
-            <tbody>
-              <tr>
-                <td>
-                  <p><strong>Full Name: </strong> {studentData.name}</p>
-                  <p><strong>Email Address: </strong> {studentData.email}</p>
-                  <p><strong>Phone Number: </strong> {studentData.phone}</p>
-                </td>
-                <td>
-                  <p><strong>Date of Birth: </strong>{handleDate(studentData.dob)}</p>
-                  <p><strong>Gender: </strong>{studentData.gender}</p>
-                  <p><strong>City: </strong>{studentData.city}</p>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div className="button-container">
-            <button className='btn btn-update' onClick={function () { navigate(`/student_update/${studentData.id}`) }}>Edit Account Details</button>
-          </div>
-          <div className="button-container">
-            <button className='btn btn-register' onClick={function () { navigate('/manage_enrollments') }}>Manage Enrollments</button>
-          </div>
-          <div className="button-container">
-            <div className='btn btn-reply' onClick={function () { setMessageModal(true); }}>Message Teacher</div>
+            {showSidePanel && (
+              <ProfilePanel
+                ref={panelRef}
+                onViewProfile={function () { setProfileModal(true); }}
+                onChangePassword={function () { setPasswordChangeModal(true); }}
+                onLogout={onLogout}
+              />
+            )}
           </div>
 
 
-          {messageModal &&
-            <div className='modal'>
-              <div className='modal-content'>
-                <h3>Message to Teacher</h3>
-                <div className="close-container">
-                  <button className='btn close-btn' onClick={function () { setMessageModal(false) }}>X</button>
-                </div>
-                <form onSubmit={handleSendMessage} className="reply-form">
-                  <div className="form-group">
-                    <select value={teacherId} onChange={e => setTeacherId(e.target.value)} required>
-                      <option value="">Select Teacher</option>
-                      {teacherList.map(teacher => (
-                        <option key={teacher.id} value={teacher.id}>{teacher.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <textarea
-                      placeholder="Type your message..."
-                      value={messageText}
-                      onChange={function (e) { setMessageText(e.target.value) }}
-                      required
-                      className="reply-textarea"
-                    />
-                  </div>
-                  <div className="button-container">
-                    <button type="submit" className="btn btn-reply">Send</button>
-                  </div>
-                </form>
-              </div>
+          <div className='admin-dashboard-topbar'>
+            <button className='topbar-button' onClick={function () { setEnrollmentModal(true) }}>Enroll in a Course</button>
+            <button className='topbar-button' onClick={function () { setMessageModal(true); }}>Message Teacher</button>
+          </div>
+          < h3 > My Exams</h3>
+          {!exams.length > 0 ? (<p>No Exams to Show</p>) : (
+            <div className='table-container'>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Exam Name</th>
+                    <th>Exam Type</th>
+                    <th>Course Name</th>
+                    <th>Exam Time</th>
+                    <th>Exam Date</th>
+
+                  </tr>
+                </thead>
+                <tbody>
+                  {
+                    exams.length > 0 && exams.map(function (exam) {
+                      const past = isPastExam(exam.exam_date);
+                      return (
+                        <tr key={exam.exam_id} className={past ? 'past-exam' : ''}>
+                          <td>{exam.exam_name}</td>
+                          <td>{exam.exam_type}</td>
+                          <td>{exam.course_name}</td>
+                          <td>{exam.exam_time}</td>
+                          <td>
+                            {handleDate(exam.exam_date)}
+                            {!isPastExam(exam.exam_date) && (
+                              <div style={{ fontSize: '12px', color: 'green' }}>
+                                ({getDaysRemaining(exam.exam_date)} days left)
+                              </div>
+                            )}
+                          </td>
+
+                        </tr>
+                      );
+                    })
+                  }
+                </tbody>
+              </table>
             </div>
-          }
+          )}
 
-          <h3>Your Messages</h3>
+          <br />
+          <hr />
+
+          <h3>Recent Messages</h3>
           <div>
             <ul className="message-list">
               {myMessages && myMessages.length === 0 ? (
                 <li>No messages yet.</li>
               ) : (
-                myMessages.map(msg => (
-                  <li key={msg.id} className="message-card">
-                    <div className="message-header">
-
-                      <p><strong>To:</strong> {msg.teacher_name}</p>
-                      <div className="message-body">
-                        <p><strong>Message:</strong> {msg.message}</p>
-                      </div>
-                      <span className="message-date">
-                        <p><em>Sent at:</em> {new Date(msg.created_at).toLocaleString()}</p>
-                      </span>
-                    </div>
-                    {msg.reply ? (
-                      <div className="message-reply">
-                        <p><strong>Reply from {msg.teacher_name}:</strong></p>
-                        <p>{msg.reply}</p>
-                      </div>
-                    ) : (
-                      <p><em>No reply yet.</em></p>
-                    )}
-                  </li>
-                ))
+                myMessages
+                  .slice(0, 2) // Show only latest 2 messages
+                  .map(function (msg) {
+                    return (
+                      <li key={msg.id} className="message-card">
+                        <div className="message-header">
+                          <p><strong>To:</strong> {msg.teacher_name}</p>
+                          <div className="message-body">
+                            <p><strong>Message:</strong> {msg.message}</p>
+                          </div>
+                          <span className="message-date">
+                            <p><em>Sent at:</em> {new Date(msg.created_at).toLocaleString()}</p>
+                          </span>
+                        </div>
+                        {msg.reply ? (
+                          <div className="message-reply">
+                            <p><strong>Reply from {msg.teacher_name}:</strong></p>
+                            <p>{msg.reply}</p>
+                          </div>
+                        ) : (
+                          <p><em>No reply yet.</em></p>
+                        )}
+                      </li>
+                    )
+                  })
               )}
-              <hr />
             </ul>
+            {myMessages.length > 2 && (
+              <div className="button-container">
+                <button className="btn btn-reply" onClick={function () { setViewAllMessagesModal(true) }}>View All Messages</button>
+              </div>
+            )}
           </div>
 
+          <br />
+          <hr />
+
+          <div className='table-container'>
+            <h3>My Exam Results</h3>
+            {results.length > 0 ? (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Exam Name</th>
+                    <th>course Name</th>
+                    <th>Results</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {results.map(function (result, index) {
+                    return (
+                      <tr key={index}>
+                        <td>{result.exam_name}</td>
+                        <td>{result.course_name}</td>
+                        <td>{result.results}</td>
+                      </tr>
+                    )
+                  })}
+
+                </tbody>
+              </table>
+            ) : (<p>No Results Available Yet...</p>)}
+          </div>
+          <br />
 
 
+          {profileModal && (
+            <ProfileModal
+              studentData={studentData}
+              profileView={profileView}
+              handleDate={handleDate}
+              handleChange={handleChange}
+              handleFileChange={handleFileChange}
+              handleUpdate={handleUpdate}
+              setProfileModal={setProfileModal}
+              setProfileView={setProfileView}
+            />
+          )}
 
+          {passwordChangeModal && (
+            <ChangePasswordModal
+              setPasswordChangeModal={setPasswordChangeModal}
+              handlePasswordModelChange={handlePasswordModelChange}
+              handlePasswordModelUpdate={handlePasswordModelUpdate}
+            />
+          )}
 
+          {messageModal && (
+            <MessageTeacherModal
+              setMessageModal={setMessageModal}
+              handleSendMessage={handleSendMessage}
+              teacherList={teacherList}
+              teacherId={teacherId}
+              setTeacherId={setTeacherId}
+              messageText={messageText}
+              setMessageText={setMessageText}
+            />
+          )}
 
+          {viewAllMessagesModal && (
+            <ViewAllMessagesModal
+              setViewAllMessagesModal={setViewAllMessagesModal}
+              myMessages={myMessages}
+            />
+          )}
 
+          {enrollmentModal && (
+            <EnrollmentModal
+              setEnrollmentModal={setEnrollmentModal}
+              courses={courses}
+              enrolledIds={enrolledIds}
+              handleEnroll={handleEnroll}
+              handleUnenroll={handleUnenroll}
+            />
+          )}
         </div>
       ) : (
         <p>Loading...</p>
       )
       }
-
-      < h3 > My Exams</h3>
-      {!exams.length > 0 ? (<p>No Exams to Show</p>) : (
-        <div className='table-container'>
-          <table>
-            <thead>
-              <tr>
-                <th>Exam Name</th>
-                <th>Exam Type</th>
-                <th>Course Name</th>
-                <th>Exam Time</th>
-                <th>Exam Date</th>
-
-              </tr>
-            </thead>
-            <tbody>
-              {
-                exams.length > 0 && exams.map(function (exam) {
-                  const past = isPastExam(exam.exam_date);
-                  return (
-                    <tr key={exam.exam_id} className={past ? 'past-exam' : ''}>
-                      <td>{exam.exam_name}</td>
-                      <td>{exam.exam_type}</td>
-                      <td>{exam.course_name}</td>
-                      <td>{exam.exam_time}</td>
-                      <td>
-                        {exam.exam_date.split('T')[0]}
-                        {!isPastExam(exam.exam_date) && (
-                          <div style={{ fontSize: '12px', color: 'green' }}>
-                            ({getDaysRemaining(exam.exam_date)} days left)
-                          </div>
-                        )}
-                      </td>
-
-                    </tr>
-                  );
-                })
-              }
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      <br />
-
-      <div className='table-container'>
-        <h2>My Exam Results</h2>
-        {results.length > 0 ? (
-          <table>
-            <thead>
-              <tr>
-                <th>Exam Name</th>
-                <th>course Name</th>
-                <th>Results</th>
-              </tr>
-            </thead>
-            <tbody>
-              {results.map(function (result, index) {
-                return (
-                  <tr key={index}>
-                    <td>{result.exam_name}</td>
-                    <td>{result.course_name}</td>
-                    <td>{result.results}</td>
-                  </tr>
-                )
-              })}
-
-            </tbody>
-          </table>
-        ) : (<p>No Results Available Yet...</p>)}
-      </div>
     </div >
   );
 };

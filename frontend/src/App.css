@@ -1,11 +1,13 @@
 body {
   font-family: Arial, sans-serif;
   background-color: #f4f4f4;
-  margin: 0;
-  padding: 20px;
   display: flex;
   justify-content: center;
   text-align: center;
+  margin: 0;
+  padding: 5px;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 h1,
@@ -14,30 +16,74 @@ h2 {
   color: #333;
 }
 
-.error {
-  color: red;
+input,
+button,
+select,
+textarea {
+  width: 90%;
+  display: block;
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 10px;
+  margin: 10px;
+  border: 1px solid #ccc;
 }
-
-.success {
-  color: rgb(43, 219, 37);
-}
-
 
 input:focus {
   border-color: #007bff;
   outline: none;
 }
 
-input,
-button,
-select {
+img {
+  border-radius: 100%;
+  height: 50;
+  width: 50;
+  align-items: center;
+}
+
+table {
   width: 100%;
-  display: flex;
-  padding: 8px;
-  font-size: 16px;
-  border-radius: 10px;
-  margin: 10px;
-  border: 1px solid #ccc;
+  max-width: auto;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
+  table-layout: auto;
+}
+
+th,
+td {
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  background: #007bff;
+  color: white;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+td {
+  border-bottom: 1px solid #ddd;
+}
+
+tr:hover {
+  background: rgba(0, 123, 255, 0.2);
+}
+
+tr:nth-child(even) {
+  background: #f8f9fa;
+}
+
+@media (max-width: 768px) {
+
+  th,
+  td {
+    padding: 10px;
+    font-size: 14px;
+  }
 }
 
 .btn {
@@ -51,6 +97,15 @@ select {
   text-align: center;
   align-content: center;
   width: 90%;
+}
+
+.btn-reply {
+  background-color: #35ad39;
+  color: white;
+}
+
+.btn-reply:hover {
+  background-color: #28bb2f;
 }
 
 .btn-success {
@@ -80,7 +135,7 @@ select {
 
 .btn-update:hover {
   background-color: #e0a800;
-  color: black;
+  color: white;
 }
 
 .btn-delete {
@@ -101,13 +156,6 @@ select {
 .btn-cancel:hover {
   background-color: #5a6268;
   color: white;
-}
-
-img {
-  border-radius: 100%;
-  height: 50;
-  width: 50;
-  align-items: center;
 }
 
 .profileUpdate {
@@ -134,11 +182,177 @@ img {
   align-items: center;
 }
 
+.profile-container {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  cursor: pointer;
+  z-index: 10;
+}
 
+.profile-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  object-fit: cover;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
 
+.profile-image:hover {
+  transform: scale(1.05);
+}
 
+.highlight-username {
+  color: #2a72e5;
+  font-weight: bold;
+  background-color: #eaf3ff;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 1.25rem;
+  transition: background-color 0.3s ease;
+}
 
+.highlight-username:hover {
+  background-color: #d4e7ff;
+}
 
+.main-container {
+  position: relative;
+  max-width: 1400px;
+  width: 100%;
+  margin: auto;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  box-sizing: border-box;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.dashboard-container {
+  position: relative;
+  max-width: 1300px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  width: 100vw;
+  box-sizing: border-box;
+  overflow-x: auto;
+}
+
+.container {
+  position: relative;
+  max-width: 1300px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
+}
+
+.admin-dashboard-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  /* justify-content: flex-start; */
+  align-items: center;
+  padding: 10px 20px;
+  background-color: transparent;
+  border-bottom: 2px solid #1abc9c;
+  box-sizing: border-box;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.topbar-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #31c5a7;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bolder;
+  transition: background-color 0.5s;
+  white-space: nowrap;
+  text-align: center;
+  width: 180px;
+}
+
+.topbar-button:hover {
+  background-color: #067a63;
+}
+
+.notification-badge {
+  position: relative;
+  font-weight: bold;
+}
+
+.badge {
+  background: red;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 50%;
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  font-size: 12px;
+}
+
+.timetable-container {
+  overflow-x: auto;
+  margin-top: 2rem;
+  /* width: 100%; */
+}
+
+.timetable-grid {
+  border-collapse: collapse;
+  width: 100%;
+  /* min-width: 700px; */
+}
+
+.timetable-grid th,
+.timetable-grid td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
+  /* min-width: 100px; */
+}
+
+.timetable-grid th {
+  background: #007bff;
+  color: white;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.timetable-grid td.occupied {
+  background-color: #d1e7dd;
+  font-weight: bold;
+  color: #16a05f;
+}
+
+.time {
+  font-size: 0.8em;
+  color: #666;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
 
 .close-btn {
   background-color: red;
@@ -166,46 +380,104 @@ img {
   right: 10px;
 }
 
-.container {
-  display: block;
-  max-width: 1000px;
-  margin: auto;
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
-  width: 100vw;
-  box-sizing: border-box;
-  overflow-x: auto;
-}
-
 .modal {
   display: flex;
   justify-content: center;
   align-items: center;
   position: fixed;
-  padding-top: 20px;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.7);
   z-index: 999;
-  overflow: hidden; /* prevent outer scroll */
+  overflow: hidden; /* only for backdrop */
 }
 
 .modal-content {
   position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
   background: white;
   padding: 20px;
   border-radius: 10px;
-  max-width: 750px;
-  width: 100%;
-  min-width: 300px;
-  max-height: 80vh; /* 👈 limits height inside modal */
-  overflow-y: auto;  /* 👈 enables internal scroll if needed */
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
+
+.modal-content-password {
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content-enrolled {
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  width: 50%;
+}
+
+.modal-content-profile {
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content-message {
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  width: 60%;
+}
+
+.modal-content-results {
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  width: 40%;
+}
+.modal-content-exams {
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  width: 40%;
+}
+
+.modal-content-courses {
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  width: 40%;
+}
+
 
 .modal-login {
   background: white;
@@ -215,7 +487,7 @@ img {
   max-width: 300px;
   max-height: 80vh;
   overflow-y: auto;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .modal-content h2 {
@@ -255,20 +527,20 @@ img {
   font-weight: bold;
 }
 
-.form-group input {
+.form-group input, select, textarea {
   flex: 1;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 10px;
 }
 
-.form-group select {
+/* .form-group select {
   width: 65%;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 10px;
   box-sizing: border-box;
-}
+} */
 
 .button-container {
   display: flex;
@@ -277,138 +549,9 @@ img {
   margin-top: 2px;
 }
 
-.table-container {
-  width: 100%;
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  max-width: 1000px;
-  border-collapse: collapse;
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
-  table-layout: auto;
-}
-
-th,
-td {
-  padding: 10px;
-  text-align: left;
-}
-
-th {
-  background: #007bff;
-  color: white;
-  font-weight: bold;
-  text-transform: capitalize;
-}
-
-td {
-  border-bottom: 1px solid #ddd;
-}
-
-tr:hover {
-  background: rgba(0, 123, 255, 0.2);
-}
-
-tr:nth-child(even) {
-  background: #f8f9fa;
-}
-
-/* Responsive - Scrollable on Small Screens */
-@media (max-width: 768px) {
-
-  th,
-  td {
-    padding: 10px;
-    font-size: 14px;
-  }
-}
-
-.logout-button {
-  background-color: #dc3545;
-  width: 140px;
-  color: white;
-  font-size: 16px;
-  font-weight: normal;
-  text-transform: uppercase;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
-  display: block;
-  align-items: center;
-  gap: 8px;
-}
-
-.logout-button:hover {
-  background-color: #c82333;
-  transform: scale(1.05);
-}
-
-.logout-button:active {
-  background-color: #bd2130;
-  transform: scale(0.98);
-}
-
 .past-exam {
   background-color: #f0f0f0;
   color: #969494;
-}
-
-
-
-.timetable-container {
-  overflow-x: auto;
-  margin-top: 2rem;
-}
-
-.timetable-grid {
-  border-collapse: collapse;
-  width: 100%;
-  min-width: 700px;
-}
-
-.timetable-grid th,
-.timetable-grid td {
-  border: 1px solid #ccc;
-  padding: 10px;
-  text-align: center;
-  min-width: 100px;
-}
-
-.timetable-grid th {
-  background: #007bff;
-  color: white;
-  font-weight: bold;
-  text-transform: capitalize;
-}
-
-.timetable-grid td.occupied {
-  background-color: #d1e7dd;
-  font-weight: bold;
-  color: #16a05f;
-}
-
-
-.notification-badge {
-  position: relative;
-  font-weight: bold;
-}
-
-.badge {
-  background: red;
-  color: white;
-  padding: 3px 8px;
-  border-radius: 50%;
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  font-size: 12px;
 }
 
 .message-list {
@@ -461,42 +604,53 @@ tr:nth-child(even) {
   margin-bottom: 10px;
 }
 
-.btn-reply {
-  background-color: #35ad39;
-  color: white;
+/* ProfilePanel.jsx Styles */
+.profile-panel {
+  position: absolute;
+  top: 70px;
+  right: 20px;
+  width: 220px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  z-index: 999;
+  overflow: hidden;
+  animation: slideIn 0.3s ease forwards;
+  text-align: left;
 }
 
-.btn-reply:hover {
-  background-color: #28bb2f;
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-
-.timetable-grid td.break {
-  background-color: #d68282;
-  font-style: italic;
-  text-align: center;
-  color: #c46565;
-}
-.timetable-grid td.occupied {
-  background-color: #cfe2ff;
-  font-weight: bold;
-}
-.time {
-  font-size: 0.8em;
-  color: #666;
+.profile-panel a {
+  display: block;
+  padding: 12px 16px;
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  text-align: left;
 }
 
-
-.highlight-username {
-  color: #2a72e5;           /* Soft blue tone */
-  font-weight: bold;
-  background-color: #eaf3ff; /* Light blue background */
-  padding: 2px 6px;
-  border-radius: 6px;
-  font-size: 1.25rem;
-  transition: background-color 0.3s ease;
+.profile-panel a:hover {
+  background-color: #f5f5f5;
+  color: #007bff;
+  /* color: #f5f5f5;
+  background-color: #007bff; */
 }
 
-.highlight-username:hover {
-  background-color: #d4e7ff; /* Slightly deeper on hover */
+.profile-panel a.logout:hover {
+  color: red;
+  /* background-color: red; */
 }
+
+/* ProfilePanel.jsx Styles */

@@ -1,31 +1,37 @@
 const express = require('express');
 const router = express.Router();
 const studentController = require('../controllers/studentController.js');
-const { authenticateUser, authorizeAdmin } = require('../middleware/authMiddleware.js');
+const { authenticateUser, authorizeRoles } = require('../middleware/authMiddleware.js');
 const upload = require('../middleware/fileMiddleware.js');
 
 // Get all students (Admin Only)
-router.get('/students', authenticateUser, authorizeAdmin, studentController.getAllStudents);
-
+// ManageStudent.jsx, AdminResult.jsx
+router.get('/students', authenticateUser, authorizeRoles('admin'), studentController.getAllStudents);
 // Get specific students record for Student Dashboard 
+// StudentDashboard.jsx
 router.get('/students/record', authenticateUser, studentController.getStudent_StudentDashboard);
-
 // Add new student (Admin Only)
-router.post('/students', authenticateUser, authorizeAdmin, upload, studentController.registerStudent);
+// StudentRegister.jsx
+router.post('/students', authenticateUser, authorizeRoles('admin'), upload, studentController.registerStudent);
 
-// GET /students/search?query=mark
-router.get('/students/search', authenticateUser, authorizeAdmin, studentController.searchStudents);
+// Get specific students (Student) 
+// ManageStudents.jsx 
+router.get('/students/:id', authenticateUser, authorizeRoles('admin'), studentController.getSpecificStudent);
 
-// Get specific students (Admin and Student)
-router.get('/students/:id', authenticateUser, studentController.getSpecificStudent);
-
-// Update existing student (Both Users)
+// Update existing student
+// StudentDashboard.jsx, TeacherDashboard.jsx, AdminDashboard.jsx, ManageStudents.jsx
 router.put('/students/:id', authenticateUser, upload, studentController.updateStudent);
 
-// Update existing student user account details(Both Can)
+// Update existing student user account details
+// StudentDashboard.jsx, TeacherDashboard.jsx, AdminDashboard.jsx
 router.post('/students/account/:id', authenticateUser, studentController.updateAccountDetails);
 
+
 // Delete student (Admin Only)
-router.delete('/students/:id', authenticateUser, authorizeAdmin, studentController.deleteStudent);
+// ManageStudents.jsx
+router.delete('/students/:id', authenticateUser, authorizeRoles('admin'), studentController.deleteStudent);
+
+// GET /students/search?query=mark
+// router.get('/students/search', authenticateUser, authorizeAdmin, studentController.searchStudents);
 
 module.exports = router;

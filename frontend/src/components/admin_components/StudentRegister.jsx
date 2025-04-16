@@ -3,7 +3,6 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config/apiConfig';
 import { toast } from 'react-toastify';
-import '../../App.css';
 
 function StudentRegister() {
     const [studentData, setStudentData] = useState({ name: '', email: '', phone: '', dob: '', gender: '', city: '', profile: null, password: '', confirmpassword: '', role: '' });
@@ -17,7 +16,7 @@ function StudentRegister() {
 
     async function verifyUserRole() {
         try {
-            const response = await baseAPI.get('/api/auth/user');
+            const response = await baseAPI.get(`/api/auth/user`);
             if (response.data.role !== 'admin') {
                 window.location.href = '/login';
             }
@@ -63,7 +62,7 @@ function StudentRegister() {
             formData.append("file", studentData.profile)
         }
         try {
-            await baseAPI.post('/api/students', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+            await baseAPI.post(`/api/students`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
             toast.success('Student Registered Successfully');
             navigate(-1);
         }
@@ -75,7 +74,7 @@ function StudentRegister() {
 
     return (
         <div className='modal>'>
-            <div className="modal-content">
+            <div className="modal-content-profile">
             <div className="close-container">
                             <button className='btn close-btn' onClick={function () { navigate(-1) }}>X</button>
                         </div>
@@ -146,6 +145,7 @@ function StudentRegister() {
                         <select name='role' onChange={handleChange} required >
                             <option value="">--Select--</option>
                             <option value="student">Student</option>
+                            <option value="teacher">Teacher</option>
                             <option value="admin">Admin</option>
                         </select>
                     </div>

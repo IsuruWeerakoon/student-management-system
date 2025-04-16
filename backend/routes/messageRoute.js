@@ -1,17 +1,23 @@
 const express = require('express');
 const router = express.Router();
 const messageController = require('../controllers/messageController.js');
-const {authenticateUser} = require('../middleware/authMiddleware.js');
+const { authenticateUser, authorizeRoles } = require('../middleware/authMiddleware.js');
 
 //send message to the teacher
-router.post('/messages/send',authenticateUser, messageController.sendMessage);
+// StudentDashboard.jsx
+router.post('/messages/send', authenticateUser, messageController.sendMessage);
+
 //Get message for the teacher to show in teachers dashboard
-router.get('/messages/teacher/:teacherId',authenticateUser, messageController.getMessagesForTeacher);
+// TeacherDashboard.jsx
+router.get('/messages/teacher/:teacherId', authenticateUser, authorizeRoles('teacher'), messageController.getMessagesForTeacher);
 
-router.post('/messages/reply/:messageId',authenticateUser, messageController.replyToMessage);
+// TeacherDashboard.jsx
+router.post('/messages/reply/:messageId', authenticateUser, authorizeRoles('teacher'), messageController.replyToMessage);
 
-router.get('/messages/unread-count/:teacherId',authenticateUser, messageController.getUnreadCount);
+// TeacherDashboard.jsx
+router.get('/messages/unread-count/:teacherId', authenticateUser, authorizeRoles('teacher'), messageController.getUnreadCount);
 
-router.get('/messages/student/:studentId',authenticateUser, messageController.getMessagesForStudent);
+// StudentDashboard.jsx
+router.get('/messages/student/:studentId', authenticateUser, messageController.getMessagesForStudent);
 
 module.exports = router;

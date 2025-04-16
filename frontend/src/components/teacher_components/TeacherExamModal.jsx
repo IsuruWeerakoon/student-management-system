@@ -4,7 +4,7 @@ function TeacherExamModal(props) {
 
     return (
         <div className='modal'>
-            <div className='modal-content'>
+            <div className='modal-content-exams'>
                 <div className="close-container">
                     <button className='btn close-btn' onClick={function () {
                         props.onClose();

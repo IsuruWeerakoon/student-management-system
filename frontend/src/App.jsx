@@ -4,21 +4,18 @@ import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 import API_BASE_URL from './config/apiConfig';
+import './App.css';
 
+import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import StudentDashboard from './pages/StudentDashboard';
-import Login from './pages/Login';
+import TeacherDashboard from './pages/TeacherDashboard';
 import StudentRegister from './components/admin_components/StudentRegister';
-import StudentUpdate from './components/student_components/StudentUpdate';
-import CourseRegister from './components/admin_components/CourseRegister';
-import CourseUpdate from './components/student_components/CourseUpdate';
 import ManageStudents from './components/admin_components/ManageStudents';
 import ManageCourses from './components/admin_components/ManageCourses';
-import CourseEnrollment from './components/student_components/CourseEnrollment';
-import AdminEnrollment from './components/admin_components/AdminEnrollment';
+import ManageEnrollments from './components/admin_components/ManageEnrollments';
 import AdminExams from './components/admin_components/AdminExams';
 import AdminResults from './components/admin_components/AdminResults';
-import TeacherDashboard from './pages/TeacherDashboard';
 import TeacherExams from './components/teacher_components/TeacherExams';
 
 function App() {
@@ -83,17 +80,10 @@ function App() {
                 {/* Redirect Other Paths */}
                 <Route path="*" element={<Navigate to="/login" />} />
 
-
                 <Route path="/manage_students" element={userRole === 'admin' ? <ManageStudents /> : <Navigate to="/login" />} />
                 <Route path="/student_register" element={userRole === 'admin' ? <StudentRegister /> : <Navigate to="/login" />} />
-                <Route path="/student_update/:studentID" element={<StudentUpdate />} />
-
                 <Route path="/manage_courses" element={userRole === 'admin' ? <ManageCourses /> : <Navigate to="/login" />} />
-                <Route path="/course_register" element={userRole === 'admin' ? <CourseRegister /> : <Navigate to="/login" />} />
-                <Route path="/course_update/:courseID" element={<CourseUpdate />} />
-
-                <Route path='/manage_enrollments' element={<CourseEnrollment />} />
-                <Route path="/admin/enrollments" element={userRole === 'admin' ? <AdminEnrollment /> : <Navigate to="/login" />} />
+                <Route path="/admin/enrollments" element={userRole === 'admin' ? <ManageEnrollments /> : <Navigate to="/login" />} />
                 <Route path='/admin/exams' element={userRole === 'admin' ? <AdminExams /> : <Navigate to={'/login'} />} />
                 <Route path='/teacher/exams/:courseID' element={userRole === 'teacher' ? <TeacherExams /> : <Navigate to={'/login'} />} />
                 <Route path='/admin/results' element={userRole === 'admin' ? <AdminResults /> : <Navigate to={'/login'} />} />

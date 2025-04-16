@@ -1,20 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config/apiConfig';
 import { toast } from 'react-toastify';
-import '../../App.css';
 
-function AdminEnrollment() {
+function ManageEnrollments() {
     const [students, setStudents] = useState([]);
     const [selectedStudentId, setSelectedStudentId] = useState(null);
     const [courses, setCourses] = useState([]);
     const [enrolledIds, setEnrolledIds] = useState([]);
     const baseAPI = axios.create({ baseURL: API_BASE_URL, withCredentials: true });
-    const navigate = useNavigate();
 
     useEffect(function () {
-        baseAPI.get('/api/admin/students')
+        baseAPI.get(`/api/admin/students`)
             .then(function (response) {
                 setStudents(response.data);
             });
@@ -36,7 +33,7 @@ function AdminEnrollment() {
         if (enrolledIds.includes(courseId)) {
             return toast.warning('Already enrolled');
         }
-        baseAPI.post('/api/admin/enroll', { studentId: selectedStudentId, courseId })
+        baseAPI.post(`/api/admin/enroll`, { studentId: selectedStudentId, courseId })
             .then(function () {
                 setEnrolledIds([...enrolledIds, courseId]);
                 toast.success("Enrolled in the Course Successfully...")
@@ -44,7 +41,7 @@ function AdminEnrollment() {
     }
 
     function handleUnenroll(courseId) {
-        baseAPI.post('/api/admin/unenroll', { studentId: selectedStudentId, courseId })
+        baseAPI.post(`/api/admin/unenroll`, { studentId: selectedStudentId, courseId })
             .then(function () {
                 setEnrolledIds(enrolledIds.filter(function (id) { return id !== courseId; }));
                 toast.success("Unenrolled from the Course Successfully..")
@@ -53,7 +50,6 @@ function AdminEnrollment() {
 
     return (
         <div className='container'>
-            <h1>Admin Dashboard</h1>
             <h3>Manage Student Enrollments</h3>
             <div className='form-group'>
                 <label>Select Student: </label>
@@ -101,11 +97,8 @@ function AdminEnrollment() {
                     </table>
                 </div>
             )}
-            <div className='button-container'>
-                <button className='btn btn-cancel' onClick={function () { navigate('/admin-dashboard') }}>Back</button>
-            </div>
         </div>
     );
 }
 
-export default AdminEnrollment;
+export default ManageEnrollments;

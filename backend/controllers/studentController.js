@@ -3,24 +3,24 @@ const bcrypt = require('bcryptjs');
 const fs = require('fs');
 
 exports.getAllStudents = function (req, res) {
-    studentModel.retrieveAll(function (err, data) {
+    studentModel.retrieveAll(function (err, result) {
         if (err) {
             return res.status(500).json(err);
         }
-        res.json(data);
+        res.json(result);
     });
 };
 
 exports.getStudent_StudentDashboard = function (req, res) {
     const studentID = req.user.userID; // Extracted from JWT
-    studentModel.retrieveByID(studentID, function (err, data) {
+    studentModel.retrieveByID(studentID, function (err, result) {
         if (err) {
             return res.status(500).json({ error: "Database Error" });
         }
-        if (data.length === 0) {
+        if (result.length === 0) {
             return res.status(404).json({ error: "Student not Found" });
         }
-        res.json(data[0]);
+        res.json(result[0]);
     });
 };
 
@@ -28,7 +28,7 @@ exports.registerStudent = async function (req, res) {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     if (req.file === undefined) {
         const studentData = [req.body.name, req.body.email, req.body.phone, req.body.dob, req.body.gender, req.body.city, null, hashedPassword, req.body.role];
-        studentModel.create(studentData, function (err, data) {
+        studentModel.create(studentData, function (err, result) {
             if (err) {
                 return res.status(500).json({ message: 'Email Address Already Exists..' });
             }
@@ -37,7 +37,7 @@ exports.registerStudent = async function (req, res) {
     }
     else {
         const studentData = [req.body.name, req.body.email, req.body.phone, req.body.dob, req.body.gender, req.body.city, req.file.path, hashedPassword, req.body.role];
-        studentModel.create(studentData, function (err, data) {
+        studentModel.create(studentData, function (err, result) {
             if (err) {
                 return res.status(500).json({ message: 'Email Address Already Exists..' });
             }
@@ -46,55 +46,47 @@ exports.registerStudent = async function (req, res) {
     }
 };
 
-exports.searchStudents = function (req, res) {
-    const search = req.query.search;
-    const likeSearch = `%${search}%`;
-    if (!search) {
-        return res.status(400).json({ error: 'Missing search query' });
-    }
-    studentModel.searchStudents(likeSearch, function (err, data) {
-        if (err) {
-            return res.status(500).json({ error: 'Database error' });
-        }
-        res.json(data);
-    });
-};
-
 exports.getSpecificStudent = function (req, res) {
     const studentID = req.params.id;
-    studentModel.retrieveByID(studentID, function (err, data) {
+    studentModel.retrieveByID(studentID, function (err, result) {
         if (err) {
             return res.status(500).json(err);
         }
-        res.json(data[0]);
+        res.json(result[0]);
     });
 };
 
 exports.updateStudent = function (req, res) {
     const studentID = req.params.id;
     if (req.file === undefined) {
-        const studentData = [req.body.name, req.body.phone, req.body.dob, req.body.gender, req.body.city];
-        studentModel.updatewithout_Pic(studentID, studentData, function (err, data) {
+        //changed here
+        // const studentData = [req.body.name, req.body.email, req.body.phone, req.body.dob, req.body.gender, req.body.city];
+        const studentData = [req.body.name, req.body.email, req.body.phone, req.body.city];
+        studentModel.updatewithout_Pic(studentID, studentData, function (err, result) {
             if (err) {
-                return res.status(400).json({ message: err });
+                // return res.status(400).json({ message: err });
+                return res.status(400).json({ message: "Email Address Already Exists" });
             }
-            res.json({ message: "Student Details Updated Successfully.." });
+            res.json({ message: "Profile Updated Successfully.." });
         });
     }
     else {
-        studentModel.retrieveByID(studentID, function (err, data) {
+        studentModel.retrieveByID(studentID, function (err, result) {
             if (err) {
                 console.log(err);
             }
-            const oldPath = data[0].file_path;
+            const oldPath = result[0].file_path;
             const newPath = 'uploads/' + req.file.filename;
-            const studentData = [req.body.name, req.body.phone, req.body.dob, req.body.gender, req.body.city, newPath];
+            // changed here
+            // const studentData = [req.body.name, req.body.email, req.body.phone, req.body.dob, req.body.gender, req.body.city, newPath];
+            const studentData = [req.body.name, req.body.email, req.body.phone, req.body.city, newPath];
             if (oldPath === null) {
-                studentModel.updatewith_Pic(studentID, studentData, function (err, data) {
+                studentModel.updatewith_Pic(studentID, studentData, function (err, result) {
                     if (err) {
-                        return res.status(400).json({ message: err });
+                        // return res.status(400).json({ message: err });
+                        return res.status(400).json({ message: "Email Address Already Exists" });
                     }
-                    res.json({ message: "Student Details Updated Successfully.." });
+                    res.json({ message: "Profile Updated Successfully.." });
                 });
             }
             else {
@@ -102,11 +94,12 @@ exports.updateStudent = function (req, res) {
                     if (err) {
                         console.log(err);
                     }
-                    studentModel.updatewith_Pic(studentID, studentData, function (err, data) {
+                    studentModel.updatewith_Pic(studentID, studentData, function (err, result) {
                         if (err) {
-                            return res.status(400).json({ message: err });
+                            // return res.status(400).json({ message: err });
+                            return res.status(400).json({ message: "Email Address Already Exists" });
                         }
-                        res.json({ message: "Student Details Updated Successfully.." });
+                        res.json({ message: "Profile Updated Successfully.." });
                     });
                 });
             }
@@ -117,16 +110,16 @@ exports.updateStudent = function (req, res) {
 exports.updateAccountDetails = async function (req, res) {
     const { currentPassword, newPassword } = req.body;
     const studentID = req.params.id;
-    studentModel.checkPassword(studentID, async function (err, data) {
+    studentModel.checkPassword(studentID, async function (err, result) {
         if (err) {
             return res.status(404).json({ message: "User not Found.." });
         }
-        const isMatch = await bcrypt.compare(currentPassword, data[0].password);
+        const isMatch = await bcrypt.compare(currentPassword, result[0].password);
         if (!isMatch) {
             return res.status(400).json({ message: "Current Password is Invalid.." });
         }
         const hashedPassword = await bcrypt.hash(newPassword, 10);
-        studentModel.updatePassword(studentID, hashedPassword, function (err, data) {
+        studentModel.updatePassword(studentID, hashedPassword, function (err, result) {
             if (err) {
                 return res.status(400).json({ message: "Password Failed to Update.." });
             }
@@ -137,13 +130,13 @@ exports.updateAccountDetails = async function (req, res) {
 
 exports.deleteStudent = function (req, res) {
     const studentID = req.params.id;
-    studentModel.retrieveByID(studentID, function (err, data) {
+    studentModel.retrieveByID(studentID, function (err, result) {
         if (err) {
             console.log(err);
         }
-        const oldPath = data[0].file_path;
+        const oldPath = result[0].file_path;
         if (oldPath === null) {
-            studentModel.delete(studentID, function (err, data) {
+            studentModel.delete(studentID, function (err, result) {
                 if (err) {
                     console.log(err);
                 }
@@ -165,3 +158,17 @@ exports.deleteStudent = function (req, res) {
         }
     });
 };
+
+// exports.searchStudents = function (req, res) {
+//     const search = req.query.search;
+//     const likeSearch = `%${search}%`;
+//     if (!search) {
+//         return res.status(400).json({ error: 'Missing search query' });
+//     }
+//     studentModel.searchStudents(likeSearch, function (err, data) {
+//         if (err) {
+//             return res.status(500).json({ error: 'Database error' });
+//         }
+//         res.json(data);
+//     });
+// };

@@ -10,3 +10,7 @@ export function getDaysRemaining(dateStr) {
     const diffTime = examDate - today;
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
+
+export function handleDate(DATE){
+    return DATE.split('T')[0];
+}

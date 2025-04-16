@@ -61,11 +61,12 @@ exports.getAllExistingResults = function (req, res) {
 };
 
 
-
 exports.submitOrUpdateResults = function (req, res) {
     const { exam_id, results } = req.body;
     resultsModel.insertOrUpdateResults(exam_id, results, function (err) {
-        if (err) return res.status(500).json({ error: err });
+        if (err) {
+            return res.status(500).json({ error: err });
+        }
         res.json({ message: 'Results submitted or updated successfully.' });
     });
 };

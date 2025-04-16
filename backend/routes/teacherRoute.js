@@ -1,32 +1,45 @@
 const express = require('express');
 const router = express.Router();
 const teacherController = require('../controllers/teacherController.js');
-const { authenticateUser, authorizeTeacher } = require('../middleware/authMiddleware.js');
+const { authenticateUser, authorizeRoles } = require('../middleware/authMiddleware.js');
 
-router.get('/teacher/record', authenticateUser, teacherController.getTeacherData);
+//TeacherDashboard.jsx
+router.get('/teacher/record', authenticateUser, authorizeRoles('teacher'), teacherController.getTeacherData);
 // Get courses assigned to teacher
-router.get('/teacher/courses/:teacher_id', authenticateUser, teacherController.getTeacherCourses);
-// Get exams for a course
-router.get('/teacher/exams/:course_id', authenticateUser, teacherController.getCourseExams);
+//TimetableForm.jsx, TeacherDashboard.jsx
+router.get('/teacher/courses/:teacher_id', authenticateUser, authorizeRoles('teacher','admin'), teacherController.getTeacherCourses);
 // Get students in a course
-router.get('/teacher/students/:course_id', authenticateUser, teacherController.getEnrolledStudents);
+// TeacherExams.jsx, TeacherDashboard.jsx
+router.get('/teacher/students/:course_id', authenticateUser, authorizeRoles('teacher'), teacherController.getEnrolledStudents);
+//TeacherDashboard.jsx
+router.get('/teacher/timetable/:teacherId', authenticateUser, authorizeRoles('teacher'), teacherController.getTeacherTimetable);
+// AdminTimetable.jsx, StudentDashboard.jsx
+router.get('/teachers', authenticateUser, teacherController.getAllTeachers);
 
-router.post('/teacher/exams', authenticateUser, teacherController.addExam);
+
+
+
+// Get exams for a course
+// Nowhere
+// router.get('/teacher/exams/:course_id', authenticateUser, teacherController.getCourseExams);
+// Nowhere
+// router.post('/teacher/exams', authenticateUser, teacherController.addExam);
+
 // Submit results
-router.post('/teacher/submit-results', authenticateUser, teacherController.submitResults);
+// Nowhere
+// router.post('/teacher/submit-results', authenticateUser, teacherController.submitResults);
 
 // Courses
-router.post('/courses', authenticateUser, teacherController.addCourse);
-router.put('/courses/:id', authenticateUser, teacherController.updateCourse);
-router.delete('/courses/:id', authenticateUser, teacherController.deleteCourse);
+// router.post('/courses', authenticateUser, teacherController.addCourse);
+// router.put('/courses/:id', authenticateUser, teacherController.updateCourse);
+// router.delete('/courses/:id', authenticateUser, teacherController.deleteCourse);
 
 // Exams
-router.put('/exams/:id', authenticateUser, teacherController.updateExam);
-router.delete('/exams/:id', authenticateUser, teacherController.deleteExam);
+// router.put('/exams/:id', authenticateUser, teacherController.updateExam);
+// router.delete('/exams/:id', authenticateUser, teacherController.deleteExam);
 
-router.get('/teacher/timetable/:teacherId', authenticateUser, teacherController.getTeacherTimetable);
 
-router.get('/teachers', authenticateUser, teacherController.getAllTeachers);
+
 
 
 

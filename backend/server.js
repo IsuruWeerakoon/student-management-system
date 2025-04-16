@@ -14,6 +14,8 @@ const examRoute = require('./routes/examRoute.js');
 const resultRoute = require('./routes/resultRoute.js');
 const teacherRoute = require('./routes/teacherRoute.js');
 const messageRoute = require('./routes/messageRoute.js');
+const timetableRoutes = require('./routes/timetableRoute.js');
+const adminsRoute = require('./routes/adminRoute.js');
 
 const app = express();
 app.use(cookieParser());
@@ -30,14 +32,21 @@ app.use(cors({
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api', adminsRoute);
 app.use('/api', studentRoutes);
 app.use('/api', studentRoutes);
 app.use('/api', courseRoutes);
 app.use('/api', enrollmentRoutes);
-app.use('/api/exams', examRoute);
-app.use('/api/results', resultRoute);
+// app.use('/api/exams', examRoute);
+app.use('/api', examRoute);
+// app.use('/api/results', resultRoute);
+app.use('/api', resultRoute);
 app.use('/api', teacherRoute);
 app.use('/api', messageRoute);
+// app.use('/api/timetable', timetableRoutes);
+app.use('/api', timetableRoutes);
+
+
 
 //Test API for the BackEnd
 app.get('/', function(req, res){

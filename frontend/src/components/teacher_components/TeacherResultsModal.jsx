@@ -7,12 +7,12 @@ function TeacherResultsModal(props) {
 
     return (
         <div className='modal'>
-            <div className='modal-content'>
+            <div className='modal-content-results'>
                 <div className="close-container">
                     <button className='btn close-btn' onClick={props.onClose}>X</button>
                 </div>
                 <h3>Submit Results</h3>
-                <div>
+                <div className='table-container'>
                     <table>
                         <thead>
                             <tr>
@@ -40,12 +40,13 @@ function TeacherResultsModal(props) {
                             })}
                         </tbody>
                     </table>
+                    </div>
                     <div className='button-container'>
                         <button className={props.hasExisting ? 'btn btn-update' : 'btn btn-success'} onClick={props.onSubmit}>
                             {props.hasExisting ? 'Update Results' : 'Submit Results'}
                         </button>
                     </div>
-                </div>
+                {/* </div> */}
             </div>
         </div>
     );

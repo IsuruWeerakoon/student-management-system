@@ -3,10 +3,9 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import API_BASE_URL from '../../config/apiConfig';
 import { toast } from 'react-toastify';
-import '../../App.css';
 import TeacherExamModal from './TeacherExamModal';
 import TeacherResultsModal from './TeacherResultsModal';
-import { isPastExam, getDaysRemaining } from './utils.js';
+import { isPastExam, getDaysRemaining } from '../utils.js';
 
 function TeacherExams() {
     const baseAPI = axios.create({ baseURL: API_BASE_URL, withCredentials: true });
@@ -26,7 +25,7 @@ function TeacherExams() {
 
     useEffect(function () {
         if (!courseID) return;
-        baseAPI.get('/api/teacher/students/' + courseID)
+        baseAPI.get(`/api/teacher/students/${courseID}`)
             .then(function (response) {
                 setStudents(response.data);
             })
@@ -34,7 +33,7 @@ function TeacherExams() {
                 console.log(err);
             });
 
-        baseAPI.get('/api/courses/' + courseID)
+        baseAPI.get(`/api/courses/${courseID}`)
             .then(function (response2) {
                 setCourses(response2.data)
             })
@@ -62,7 +61,7 @@ function TeacherExams() {
 
     async function fetchExams() {
         try {
-            const response = await baseAPI.get('/api/exams/' + courseID);
+            const response = await baseAPI.get(`/api/exams/${courseID}`);
             setExams(response.data);
         }
         catch (err) {
@@ -76,7 +75,7 @@ function TeacherExams() {
 
     function handleSubmit(e) {
         e.preventDefault();
-        const request = editingExamId ? baseAPI.put(`/api/exams/${editingExamId}`, form) : baseAPI.post('/api/exams', form)
+        const request = editingExamId ? baseAPI.put(`/api/exams/${editingExamId}`, form) : baseAPI.post(`/api/exams`, form)
         request
             .then(function () {
                 handleReset();
@@ -121,10 +120,7 @@ function TeacherExams() {
             };
         });
 
-        baseAPI.post(`/api/results/submit-results`, {
-            exam_id: examID,
-            results: formatted
-        })
+        baseAPI.post(`/api/results/submit-results`, { exam_id: examID, results: formatted })
             .then(function () {
                 toast.success("Results Submitetd Successfully..!");
                 setResults({});
@@ -138,7 +134,7 @@ function TeacherExams() {
     function handleExamDelete(examID) {
         var result = confirm("Are you sure about deleting this Exam scheduled under ExamID: " + examID);
         if (result) {
-            baseAPI.delete('/api/exams/' + examID)
+            baseAPI.delete(`/api/exams/${examID}`)
                 .then(function (response) {
                     toast.warning("Exam Deleted Successfully..");
                     fetchExams();
@@ -151,12 +147,12 @@ function TeacherExams() {
     };
 
     return (
-        <div className='container'>
-            <h3>Manage My Exams</h3>
+        <div className='dashboard-container'>
+            <h2>Manage {courses.course_name} Exams</h2>
             <div className="button-container">
-                <button className='btn btn-register' type='button' onClick={function () { setShowModal(true) }}>Register New Examinations</button>
+                <button className='btn btn-reply' type='button' onClick={function () { setShowModal(true) }}>Register New Examinations</button>
             </div>
-            <h3>Registered {courses.course_name} Exams</h3>
+            <br/>
             <div className='table-container'>
                 <table>
                     <thead>

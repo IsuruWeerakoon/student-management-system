@@ -9,18 +9,18 @@ exports.getAllCourse = function (req, res) {
     });
 };
 
-exports.getCourseByTokenID = function (req, res) {
-    const courseID = req.user.userID;
-    courseModel.retrieveByID(courseID, function (err, data) {
-        if (err) {
-            return res.status(500).json({ error: "Database Error" });
-        }
-        if (data.length === 0) {
-            return res.status(404).json({ error: "Course Details not Found" });
-        }
-        res.json(data[0]);
-    });
-};
+// exports.getCourseByTokenID = function (req, res) {
+//     const courseID = req.user.userID;
+    // courseModel.retrieveByID(courseID, function (err, data) {
+//         if (err) {
+//             return res.status(500).json({ error: "Database Error" });
+//         }
+//         if (data.length === 0) {
+//             return res.status(404).json({ error: "Course Details not Found" });
+//         }
+//         res.json(data[0]);
+//     });
+// };
 
 exports.getCourseByParamID = function (req, res) {
     const courseID = req.params.id;
@@ -63,16 +63,16 @@ exports.deleteCourse = function (req, res) {
     });
 };
 
-exports.searchCourse = function (req, res) {
-    const search = req.query.search;
-    const likeSearch = `%${search}%`;
-    if (!search) {
-        return res.status(400).json({ error: 'Missing search query' });
-    }
-    courseModel.searchCourse(likeSearch, function (err, data) {
-        if (err) {
-            return res.status(500).json({ error: 'Database error' });
-        }
-        res.json(data);
-    });
-};
+// exports.searchCourse = function (req, res) {
+//     const search = req.query.search;
+//     const likeSearch = `%${search}%`;
+//     if (!search) {
+//         return res.status(400).json({ error: 'Missing search query' });
+//     }
+    // courseModel.searchCourse(likeSearch, function (err, data) {
+//         if (err) {
+//             return res.status(500).json({ error: 'Database error' });
+//         }
+//         res.json(data);
+//     });
+// };

@@ -10,7 +10,10 @@ exports.get_All_Course_And_Enrollments = function (req, res) {
             if (err2) {
                 return res.status(500).send(err2);
             }
-            const enrolledCourseIds = enrolled.map(row => row.course_id);
+            const enrolledCourseIds = enrolled.map(function (row) {
+                return row.course_id;
+            });
+
             res.json({ allCourses, enrolledCourseIds });
         });
     });

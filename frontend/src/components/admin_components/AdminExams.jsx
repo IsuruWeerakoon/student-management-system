@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config/apiConfig';
 import { toast } from 'react-toastify';
-import '../../App.css';
+import { isPastExam, getDaysRemaining } from '../utils.js';
 
 function AdminExams() {
     const [exams, setExams] = useState([]);
@@ -13,10 +12,11 @@ function AdminExams() {
     const [form, setForm] = useState(defaultForm);
     const [editingExamId, setEditingExamId] = useState(null);
     const baseAPI = axios.create({ baseURL: API_BASE_URL, withCredentials: true });
-    const navigate = useNavigate();
+    const [filteredExams, setFilteredExams] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(function () {
-        baseAPI.get('/api/courses')
+        baseAPI.get(`/api/courses`)
             .then(function (res) {
                 setCourses(res.data)
             });
@@ -24,9 +24,11 @@ function AdminExams() {
     }, []);
 
     function fetchExams() {
-        baseAPI.get('/api/exams')
+        baseAPI.get(`/api/exams`)
             .then(function (res) {
                 setExams(res.data)
+                setFilteredExams(res.data); // reset filtered list
+                setSearchTerm('');
             });
     }
 
@@ -36,7 +38,7 @@ function AdminExams() {
 
     function handleSubmit(e) {
         e.preventDefault();
-        const request = editingExamId ? baseAPI.put(`/api/exams/${editingExamId}`, form) : baseAPI.post('/api/exams', form);
+        const request = editingExamId ? baseAPI.put(`/api/exams/${editingExamId}`, form) : baseAPI.post(`/api/exams`, form);
         request
             .then(function () {
                 setForm({ course_id: '', exam_name: '', exam_date: '', exam_time: '' });
@@ -73,31 +75,101 @@ function AdminExams() {
         setEditingExamId(null);
     }
 
-    function isPastExam(dateStr) {
-        const today = new Date();
-        const examDate = new Date(dateStr);
-        return examDate < today.setHours(0, 0, 0, 0);
+    function handleDeleteExam(examID) {
+        var result = confirm("Are you Sure..?");
+        if (result) {
+            baseAPI.delete(`/api/exams/${examID}`)
+                .then(function () {
+                    fetchExams();
+                })
+                .catch(function (err) {
+                    console.log(err);
+                });
+        }
     }
 
-    function getDaysRemaining(dateStr) {
-        const today = new Date();
-        const examDate = new Date(dateStr);
-        const diffTime = examDate - today;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays;
+    function handleSearch(event) {
+        var value = event.target.value;
+        setSearchTerm(value);
+
+        var filtered = exams.filter(function (exam) {
+            return Object.values(exam).some(function (field) {
+                return String(field).toLowerCase().includes(value.toLowerCase());
+            });
+        });
+        setFilteredExams(filtered);
     }
 
     return (
         <div className='container'>
-            <h1>Admin Dashboard</h1>
             <h3>Manage Exams</h3>
             <div className="button-container">
                 <button className='btn btn-register' type='button' onClick={function () { setShowModal(true) }}>Register New Examinations</button>
             </div>
+            <input
+                type="text"
+                placeholder="Search exams..."
+                value={searchTerm}
+                onChange={handleSearch}
+                style={{ marginBottom: '10px', padding: '5px', width: '250px' }}
+            />
+
+            <div className='table-container'>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Exam Name</th>
+                            <th>Exam Type</th>
+                            <th>Course Name</th>
+                            <th>Exam Time</th>
+                            <th>Exam Date</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            filteredExams.length > 0 && filteredExams.map(function (exam) {
+                                const past = isPastExam(exam.exam_date);
+                                return (
+                                    <tr key={exam.exam_id} className={past ? 'past-exam' : ''}>
+                                        <td>{exam.exam_name}</td>
+                                        <td>{exam.exam_type}</td>
+                                        <td>{exam.course_name}</td>
+                                        <td>{exam.exam_time}</td>
+                                        <td>
+                                            {exam.exam_date.split('T')[0]}
+                                            {!isPastExam(exam.exam_date) && (
+                                                <div style={{ fontSize: '12px', color: 'green' }}>
+                                                    ({getDaysRemaining(exam.exam_date)} days left)
+                                                </div>
+                                            )}
+                                        </td>
+                                        <td>
+                                            {
+                                                !past ?
+                                                    <button className='btn btn-update' onClick={function () { setShowModal(true); startEdit(exam) }}>Edit</button> :
+                                                    null
+                                            }
+                                        </td>
+                                        <td>
+                                            {
+                                                !past ?
+                                                    <button className='btn btn-delete' onClick={function () { handleDeleteExam(exam.exam_id) }}>Delete</button> :
+                                                    null
+                                            }
+                                        </td>
+                                    </tr>
+                                );
+                            })
+                        }
+                    </tbody>
+                </table>
+            </div>
             {
                 showModal && (
                     <div className='modal'>
-                        <div className='modal-content'>
+                        <div className='modal-content-exams'>
                             <div className="close-container">
                                 <button className='btn close-btn' onClick={function () { setShowModal(false); handleReset(); }}>X</button>
                             </div>
@@ -150,54 +222,6 @@ function AdminExams() {
                     </div>
                 )
             }
-
-            <h3>Registered Exams</h3>
-            <div className='table-container'>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Exam Name</th>
-                            <th>Exam Type</th>
-                            <th>Course Name</th>
-                            <th>Exam Time</th>
-                            <th>Exam Date</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            exams.length > 0 && exams.map(function (exam) {
-                                const past = isPastExam(exam.exam_date);
-                                return (
-                                    <tr key={exam.exam_id} className={past ? 'past-exam' : ''}>
-                                        <td>{exam.exam_name}</td>
-                                        <td>{exam.exam_type}</td>
-                                        <td>{exam.course_name}</td>
-                                        <td>{exam.exam_time}</td>
-                                        <td>
-                                            {exam.exam_date.split('T')[0]}
-                                            {!isPastExam(exam.exam_date) && (
-                                                <div style={{ fontSize: '12px', color: 'green' }}>
-                                                    ({getDaysRemaining(exam.exam_date)} days left)
-                                                </div>
-                                            )}
-                                        </td>
-                                        <td>
-                                            {
-                                                !past &&
-                                                <button className='btn btn-update' onClick={function () { setShowModal(true); startEdit(exam) }}>Edit</button>
-                                            }
-                                        </td>
-                                    </tr>
-                                );
-                            })
-                        }
-                    </tbody>
-                </table>
-            </div>
-            <div className="button-container">
-                <button className='btn btn-cancel' type='button' onClick={function () { navigate('admin-dashboard') }}>Back</button>
-            </div>
         </div>
     );
 }

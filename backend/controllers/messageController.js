@@ -1,9 +1,8 @@
-const db = require('../dbModel.js');
 const messageModel = require('../models/messageModel.js');
 
 exports.sendMessage = function (req, res) {
     const { sender_id, receiver_id, sender_role, message } = req.body;
-    messageModel.createMessage(sender_id, receiver_id, sender_role, message, function (err, data) {
+    messageModel.createMessage(sender_id, receiver_id, sender_role, message, function (err, result) {
         if (err) {
             console.log(err);
         }
@@ -13,18 +12,18 @@ exports.sendMessage = function (req, res) {
 
 exports.getMessagesForTeacher = function (req, res) {
     const teacherId = req.params.teacherId;
-    messageModel.retrieveMessageForTeacher(teacherId, function (err, data) {
+    messageModel.retrieveMessageForTeacher(teacherId, function (err, result) {
         if (err) {
             return res.status(500).json(err);
         }
-        res.json(data);
+        res.json(result);
     });
 };
 
 exports.replyToMessage = function (req, res) {
     const messageId = req.params.messageId;
     const { reply } = req.body;
-    messageModel.replyToStudentMessage(messageId, reply, function (err, data) {
+    messageModel.replyToStudentMessage(messageId, reply, function (err, result) {
         if (err) {
             return res.status(500).json(err);
         }
