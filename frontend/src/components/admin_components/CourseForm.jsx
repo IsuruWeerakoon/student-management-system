@@ -1,4 +1,3 @@
-// components/CourseForm.jsx
 import React from 'react';
 
 function CourseForm({ courseData, handleChange, handleSubmit, isEditMode, onClose }) {

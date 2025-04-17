@@ -5,15 +5,16 @@ import { toast } from 'react-toastify'
 import CourseForm from './CourseForm';
 
 const ManageCourses = function () {
-    const baseAPI = axios.create({ baseURL: API_BASE_URL, withCredentials: true });
+    const baseAPI = axios.create({ 
+        baseURL: API_BASE_URL, 
+        withCredentials: true 
+    });
     const [courseModal, setCourseModal] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
-
     const [courseByID, setCourseByID] = useState([]);
     const [courses, setCourses] = useState([]);
     const [filteredCourses, setFilteredCourses] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    // const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(function () {
         fetchCourses();
@@ -57,13 +58,13 @@ const ManageCourses = function () {
         setFilteredCourses(filtered);
     }
 
-    async function handleDelete(courseID) {
+    async function handleDelete(courseID, courseName) {
         if (!courseID) return;
-        var result = confirm("Are You Sure about Deleting this Record..? " + courseID);
+        var result = confirm(`Are You Sure about Deleting Course : ${courseName}..?`);
         if (result) {
             baseAPI.delete(`/api/courses/${courseID}`)
                 .then(function () {
-                    toast.success("Course Deleted Successfully..");
+                    toast.info(` ${courseName} has been Deleted..`);
                     fetchCourses();
                 })
                 .catch(function (err) {
@@ -82,7 +83,7 @@ const ManageCourses = function () {
         if (isEditMode) {
             baseAPI.put(`/api/courses/${courseByID.id}`, courseByID)
                 .then(function () {
-                    toast.success('Course Updated Successfully');
+                    toast.success('Course Successfully Updated..');
                     fetchCourses(); // refresh data
                 })
                 .catch(function (err) {
@@ -92,7 +93,7 @@ const ManageCourses = function () {
         else {
             baseAPI.post(`/api/courses`, courseByID)
                 .then(function () {
-                    toast.success('Course Registered Successfully');
+                    toast.success('Course Successfully Registered..');
                     fetchCourses(); // refresh data
                 })
                 .catch(function (err) {
@@ -108,7 +109,7 @@ const ManageCourses = function () {
 
     return (
         <div className='container'>
-            <h3>Manage Courses</h3>
+            <h2>Manage Courses</h2>
             <div className='button-container'>
                 <button className='btn btn-success' onClick={function () { setCourseModal(true); }}>Register a New Course</button>
             </div>
@@ -139,7 +140,7 @@ const ManageCourses = function () {
                                     <td>{course.course_description}</td>
                                     <td>{course.course_period}</td>
                                     <td><button className='btn btn-update' onClick={function () { fetchCourseByID(course.id); setCourseModal(true); }}>Edit</button></td>
-                                    <td><button className='btn btn-delete' onClick={function () { handleDelete(course.id) }}>Delete</button></td>
+                                    <td><button className='btn btn-delete' onClick={function () { handleDelete(course.id, course.course_name) }}>Delete</button></td>
                                 </tr>
                             );
                         })}

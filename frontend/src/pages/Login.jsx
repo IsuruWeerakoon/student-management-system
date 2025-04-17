@@ -5,9 +5,12 @@ import API_BASE_URL from '../config/apiConfig';
 import { toast } from 'react-toastify';
 
 const Login = function ({ onLogin }) {
+    const baseAPI = axios.create({
+        baseURL: API_BASE_URL,
+        withCredentials: true
+    });
     const [userCredentials, setUserCredentials] = useState([]);
     const navigate = useNavigate();
-    const baseAPI = axios.create({baseURL: API_BASE_URL,withCredentials: true});
 
     function handleChange(e) {
         setUserCredentials({ ...userCredentials, [e.target.name]: e.target.value });
@@ -18,7 +21,7 @@ const Login = function ({ onLogin }) {
         try {
             const response = await baseAPI.post(`/api/auth/login`, userCredentials);
             if (response.status === 200) {
-                getUserRole(); 
+                getUserRole();
             }
         }
         catch (err) {
@@ -33,7 +36,7 @@ const Login = function ({ onLogin }) {
             if (response.data.role === 'admin') {
                 navigate('/admin-dashboard');
             }
-            else if(response.data.role === 'teacher'){
+            else if (response.data.role === 'teacher') {
                 navigate('/teacher-dashboard');
             }
             navigate('/student-dashboard');

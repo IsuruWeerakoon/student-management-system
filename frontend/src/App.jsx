@@ -89,13 +89,14 @@ function App() {
                 <Route path='/admin/results' element={userRole === 'admin' ? <AdminResults /> : <Navigate to={'/login'} />} />
             </Routes>
             <ToastContainer
-                position="top-center"
+                position="top-right"
                 autoClose={3000}
                 hideProgressBar={false}
                 newestOnTop={false}
                 closeOnClick
                 pauseOnHover
                 draggable
+                closeButton={false}
                 theme="light"
             />
 

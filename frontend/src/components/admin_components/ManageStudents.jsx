@@ -7,19 +7,19 @@ import ProfileModal from '../../pages/user_components/common/ProfileModal.jsx';
 import { handleDate } from '../utils.js';
 
 const ManageStudents = function () {
+    const baseAPI = axios.create({ 
+        baseURL: API_BASE_URL, 
+        withCredentials: true 
+    });
     const [studentData, setStudentData] = useState({ name: '', email: '', phone: '', dob: '', gender: '', city: '', profile: null, role: '' });
-    // const [studentData, setStudentData] = useState([]);
     const [profileView, setProfileView] = useState(null);
-
     const [allUsers, setAllUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [refreshKey, setRefreshKey] = useState(0);
     const [profileModal, setProfileModal] = useState(false);
     const [studentId, setStudentId] = useState(null);
-
     const navigate = useNavigate();
-    const baseAPI = axios.create({ baseURL: API_BASE_URL, withCredentials: true });
 
     useEffect(function () {
         fetchUsers();
@@ -40,7 +40,6 @@ const ManageStudents = function () {
     function handleSearch(event) {
         var value = event.target.value;
         setSearchTerm(value);
-
         var filtered = allUsers.filter(function (user) {
             return Object.values(user).some(function (field) {
                 return String(field).toLowerCase().includes(value.toLowerCase());
@@ -49,12 +48,12 @@ const ManageStudents = function () {
         setFilteredUsers(filtered);
     }
 
-    async function handleDelete(studentID) {
-        var result = confirm("Are You Sure about Deleting this Record..?");
+    async function handleDelete(userID, userName) {
+        var result = confirm(`Are You Sure about Deleting ${userName}..?`);
         if (result) {
             try {
-                await baseAPI.delete(`/api/students/${studentID}`);
-                toast.success("User Deleted Successfully..");
+                await baseAPI.delete(`/api/students/${userID}`);
+                toast.info(`${userName} has been Deleted..`);
                 setRefreshKey(function (prev) { return prev + 1; });
             }
             catch (err) {
@@ -125,7 +124,6 @@ const ManageStudents = function () {
 
 
     return (
-        // <div>
         <div className='container'>
             <h2>Manage Users</h2>
             <div className='button-container'>
@@ -147,6 +145,7 @@ const ManageStudents = function () {
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>City</th>
+                                <th>Role</th>
                                 <th>Profile</th>
                                 <th>Actions</th>
                             </tr>
@@ -162,6 +161,7 @@ const ManageStudents = function () {
                                                     <td>{user.email}</td>
                                                     <td>{user.phone}</td>
                                                     <td>{user.city}</td>
+                                                    <td>{user.role}</td>
                                                     <td>
                                                         <img
                                                             src={API_BASE_URL + '/' + user.file_path}
@@ -169,9 +169,8 @@ const ManageStudents = function () {
                                                         />
                                                     </td>
                                                     <td>
-                                                        {/* <button className="btn btn-update" onClick={function () { goToUpdate(user.id); }}>Edit</button> */}
                                                         <button className="btn btn-update" onClick={function () { setProfileModal(true); fetchUserData(user.id); }}>Edit</button>
-                                                        <button className="btn btn-delete" onClick={function () { handleDelete(user.id); }}>Delete</button>
+                                                        <button className="btn btn-delete" onClick={function () { handleDelete(user.id, user.name); }}>Delete</button>
                                                     </td>
                                                 </tr>
                                             )

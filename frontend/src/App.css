@@ -467,6 +467,17 @@ tr:nth-child(even) {
   width: 40%;
 }
 
+.modal-content-timeslots {
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  width: 40%;
+}
+
 .modal-content-courses {
   position: relative;
   max-height: 90vh;
@@ -532,6 +543,12 @@ tr:nth-child(even) {
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 10px;
+}
+
+.highlight-name {
+  color: #2a72e5;
+  font-weight: bold;
+  font-size: 1.10rem;
 }
 
 /* .form-group select {

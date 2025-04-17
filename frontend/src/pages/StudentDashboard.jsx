@@ -14,7 +14,10 @@ import API_BASE_URL from '../config/apiConfig';
 
 // StudentDashboard Component for Viewing Courses, Exams, and Results
 const StudentDashboard = function ({ onLogout }) {
-  const baseAPI = axios.create({ baseURL: API_BASE_URL, withCredentials: true });
+  const baseAPI = axios.create({ 
+    baseURL: API_BASE_URL, 
+    withCredentials: true 
+  });
   const [studentData, setStudentData] = useState([]);
   const [studentId, setStudentId] = useState(null);
   const [exams, setExams] = useState([]);
@@ -131,7 +134,7 @@ const StudentDashboard = function ({ onLogout }) {
 
   function handleEnroll(courseId) {
     if (enrolledIds.includes(courseId)) {
-      return toast.warn('You are already enrolled in this course.');
+      return toast.warn('Already enrolled in this course.');
     }
     baseAPI.post(`/api/enroll`, { courseId })
       .then(function (res) {
@@ -164,7 +167,7 @@ const StudentDashboard = function ({ onLogout }) {
       message: messageText
     })
       .then(function () {
-        toast.success('Message sent');
+        toast.success('Message Sent..');
         setMessageText('');
         setMessageModal(false);
         fetchMessages();
@@ -222,7 +225,7 @@ const StudentDashboard = function ({ onLogout }) {
       if (userRole !== 'admin') {
         setTimeout(async function () {
           await onLogout();
-        }, 3200);
+        }, 3100);
       }
     }
     catch (error) {

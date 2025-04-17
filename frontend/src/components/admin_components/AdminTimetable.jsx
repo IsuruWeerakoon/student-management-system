@@ -6,11 +6,14 @@ import API_BASE_URL from '../../config/apiConfig';
 import { toast } from 'react-toastify';
 
 function AdminTimetable() {
+    const baseAPI = axios.create({
+        baseURL: API_BASE_URL,
+        withCredentials: true
+    });
     const [teachers, setTeachers] = useState([]);
     const [selectedTeacher, setSelectedTeacher] = useState('');
     const [timetable, setTimetable] = useState([]);
     const [editingSlot, setEditingSlot] = useState(null);
-    const baseAPI = axios.create({ baseURL: API_BASE_URL, withCredentials: true });
 
     useEffect(function () {
         baseAPI.get(`/api/teachers`)
@@ -41,19 +44,21 @@ function AdminTimetable() {
                     toast.success(res.data.message);
                     setEditingSlot(null);
                     reloadTimetable();
-    
-                    if (resetFormCallback) resetFormCallback(); 
+                    setShowForm(false);
+
+                    if (resetFormCallback) resetFormCallback();
                 })
                 .catch(function (err) {
                     toast.error(err.response?.data?.message);
                 });
         } else {
             baseAPI.post(`/api/timetable`, { ...slotData, teacher_id: selectedTeacher })
-                .then(function (res) {
-                    toast.success(res.data.message);
+                .then(function (response) {
+                    toast.success(response.data.message);
                     reloadTimetable();
-    
-                    if (resetFormCallback) resetFormCallback(); 
+                    setShowForm(false);
+
+                    if (resetFormCallback) resetFormCallback();
                 })
                 .catch(function (err) {
                     toast.error(err.response?.data?.message);
@@ -62,11 +67,12 @@ function AdminTimetable() {
     }
 
     function handleDelete(id) {
-        var result = confirm("Are you sure..!");
+        var result = confirm("Are you sure about Deleting this Time Slot..?");
         if (result) {
             baseAPI.delete(`/api/timetable/${id}`)
                 .then(function () {
                     reloadTimetable()
+                    toast.info(`Time Slot Freed Successfully..`);
                 })
                 .catch(function (err) {
                     console.log(err);
@@ -81,6 +87,11 @@ function AdminTimetable() {
             });
     };
 
+    const [showForm, setShowForm] = useState(false);
+    function handleFormView() {
+        setShowForm(true);
+        setEditingSlot(null);
+    }
     return (
         <div className="container">
             <h2>Teacher Timetable Management</h2>
@@ -101,18 +112,32 @@ function AdminTimetable() {
 
             {selectedTeacher && (
                 <>
-                    <TimetableForm
-                        onSubmit={handleAddOrUpdate}
-                        editingSlot={editingSlot}
-                        setEditingSlot={setEditingSlot}
-                        teacherId={selectedTeacher}
-                    />
+                    <div className='button-container'>
+                        <button className='btn btn-reply' onClick={handleFormView}>Add Time Slot</button>
+                    </div>
 
-                    <TimetableTable
-                        data={timetable}
-                        onEdit={setEditingSlot}
-                        onDelete={handleDelete}
-                    />
+                    {showForm && (
+                        <TimetableForm
+                            onSubmit={handleAddOrUpdate}
+                            editingSlot={editingSlot}
+                            setEditingSlot={setEditingSlot}
+                            teacherId={selectedTeacher}
+                            onClose={function () { setShowForm(false); setEditingSlot(null) }}
+                        />
+                    )
+                    }
+                    {
+                        timetable.length > 0 ? (
+                            <TimetableTable
+                                data={timetable}
+                                onEdit={function (slot) {
+                                    setEditingSlot(slot);
+                                    setShowForm(true);
+                                }}
+                                onDelete={handleDelete}
+                            />
+                        ) : (<p>No Records Yet to Show</p>)
+                    }
                 </>
             )}
         </div>

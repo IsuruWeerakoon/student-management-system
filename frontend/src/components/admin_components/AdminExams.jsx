@@ -5,13 +5,16 @@ import { toast } from 'react-toastify';
 import { isPastExam, getDaysRemaining } from '../utils.js';
 
 function AdminExams() {
+    const baseAPI = axios.create({ 
+        baseURL: API_BASE_URL, 
+        withCredentials: true 
+    });
     const [exams, setExams] = useState([]);
     const [courses, setCourses] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const defaultForm = { course_id: '', exam_name: '', exam_date: '', exam_time: '', exam_type: 'midterm' };
     const [form, setForm] = useState(defaultForm);
     const [editingExamId, setEditingExamId] = useState(null);
-    const baseAPI = axios.create({ baseURL: API_BASE_URL, withCredentials: true });
     const [filteredExams, setFilteredExams] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -46,7 +49,7 @@ function AdminExams() {
                 handleReset();
                 setShowModal(false);
 
-                editingExamId ? toast.info("Exam Updated Successfully..") : toast.success("Exam Registered Successfully...");
+                editingExamId ? toast.success(`"${form.exam_name}" - Updated Successfully..`) : toast.success(`"${form.exam_name}" - Registered Successfully...`);
                 fetchExams();
             })
             .catch(function (err) {
@@ -66,7 +69,7 @@ function AdminExams() {
             exam_name: exam.exam_name,
             exam_date: exam.exam_date.split('T')[0],
             exam_time: exam.exam_time,
-            exam_type: exam.exam_type || 'midterm',
+            exam_type: exam.exam_type || 'Midterm',
         });
     }
 
@@ -75,12 +78,13 @@ function AdminExams() {
         setEditingExamId(null);
     }
 
-    function handleDeleteExam(examID) {
-        var result = confirm("Are you Sure..?");
+    function handleDeleteExam(examID, examName) {
+        var result = confirm(`Are you Sure about deleting "${examName}" from the Exams Registry..?`);
         if (result) {
             baseAPI.delete(`/api/exams/${examID}`)
                 .then(function () {
                     fetchExams();
+                    toast.info(`${examName} has been removed from the Exams Registry..`);
                 })
                 .catch(function (err) {
                     console.log(err);
@@ -102,7 +106,7 @@ function AdminExams() {
 
     return (
         <div className='container'>
-            <h3>Manage Exams</h3>
+            <h2>Manage Exams</h2>
             <div className="button-container">
                 <button className='btn btn-register' type='button' onClick={function () { setShowModal(true) }}>Register New Examinations</button>
             </div>
@@ -155,7 +159,7 @@ function AdminExams() {
                                         <td>
                                             {
                                                 !past ?
-                                                    <button className='btn btn-delete' onClick={function () { handleDeleteExam(exam.exam_id) }}>Delete</button> :
+                                                    <button className='btn btn-delete' onClick={function () { handleDeleteExam(exam.exam_id, exam.exam_name) }}>Delete</button> :
                                                     null
                                             }
                                         </td>
@@ -205,10 +209,10 @@ function AdminExams() {
                                 <div className="form-group">
                                     <label htmlFor='exam_type'>Exam Type: </label>
                                     <select name="exam_type" value={form.exam_type} onChange={handleChange} required>
-                                        <option value="midterm">Midterm</option>
-                                        <option value="final">Final</option>
-                                        <option value="quiz">Quiz</option>
-                                        <option value="project">Project</option>
+                                        <option value="Midterm">Midterm</option>
+                                        <option value="Final">Final</option>
+                                        <option value="Quiz">Quiz</option>
+                                        <option value="Project">Project</option>
                                     </select>
                                 </div>
                                 <div className='button-container'>

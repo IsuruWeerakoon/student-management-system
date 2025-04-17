@@ -12,7 +12,10 @@ import MessageReplyModal from './user_components/teacher/MessageReplyModal.jsx';
 import { handleDate } from '../components/utils.js';
 
 const TeacherDashboard = function ({ onLogout }) {
-  const baseAPI = axios.create({ baseURL: API_BASE_URL, withCredentials: true });
+  const baseAPI = axios.create({ 
+    baseURL: API_BASE_URL, 
+    withCredentials: true 
+  });
   const [teacherID, setTeacherID] = useState(null);
   const navigate = useNavigate();
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
@@ -190,7 +193,7 @@ const TeacherDashboard = function ({ onLogout }) {
       if (userRole !== 'admin') {
         setTimeout(async function () {
           await onLogout();
-        }, 3200);
+        }, 3100);
       }
     }
     catch (error) {
@@ -226,7 +229,7 @@ const TeacherDashboard = function ({ onLogout }) {
         reply: replyText,
       })
       .then(function () {
-        toast.success("Reply message sent!");
+        toast.success("Reply Sent..");
         return fetchMessages();
       })
       .then(function (res) {

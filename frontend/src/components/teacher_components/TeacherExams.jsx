@@ -8,7 +8,10 @@ import TeacherResultsModal from './TeacherResultsModal';
 import { isPastExam, getDaysRemaining } from '../utils.js';
 
 function TeacherExams() {
-    const baseAPI = axios.create({ baseURL: API_BASE_URL, withCredentials: true });
+    const baseAPI = axios.create({ 
+        baseURL: API_BASE_URL, 
+        withCredentials: true 
+    });
     const { courseID } = useParams();
     const navigate = useNavigate();
     const [exams, setExams] = useState([]);
@@ -82,7 +85,7 @@ function TeacherExams() {
                 setShowModal(false);
                 fetchExams();
                 editingExamId ?
-                    toast.info("Exam Updated Successfully..") :
+                    toast.success("Exam Updated Successfully..") :
                     toast.success("Exam Registered Successfully...");
             })
             .catch(function (err) {
@@ -122,7 +125,7 @@ function TeacherExams() {
 
         baseAPI.post(`/api/results/submit-results`, { exam_id: examID, results: formatted })
             .then(function () {
-                toast.success("Results Submitetd Successfully..!");
+                toast.success("Results Submitted Successfully..!");
                 setResults({});
                 setResultsModal(false);
             })
@@ -131,12 +134,12 @@ function TeacherExams() {
             });
     }
 
-    function handleExamDelete(examID) {
-        var result = confirm("Are you sure about deleting this Exam scheduled under ExamID: " + examID);
+    function handleExamDelete(examID, examName) {
+        var result = confirm(`Are you sure about deleting ${examName}`);
         if (result) {
             baseAPI.delete(`/api/exams/${examID}`)
-                .then(function (response) {
-                    toast.warning("Exam Deleted Successfully..");
+                .then(function () {
+                    toast.info(`${examName} has been Deleted..`);
                     fetchExams();
                 })
                 .catch(function (err) {
@@ -193,7 +196,7 @@ function TeacherExams() {
                                         </td>
                                         <td>
                                             {
-                                                !past ? <button className="btn btn-delete" onClick={function () { handleExamDelete(exam.exam_id) }}>Delete</button> :
+                                                !past ? <button className="btn btn-delete" onClick={function () { handleExamDelete(exam.exam_id, exam.exam_name) }}>Delete</button> :
                                                     <button className='btn btn-register' onClick={function () { setResultsModal(true); setExamID(exam.exam_id) }}>Results</button>
                                             }
                                         </td>

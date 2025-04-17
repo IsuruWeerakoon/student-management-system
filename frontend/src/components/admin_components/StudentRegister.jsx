@@ -5,9 +5,12 @@ import API_BASE_URL from '../../config/apiConfig';
 import { toast } from 'react-toastify';
 
 function StudentRegister() {
+    const baseAPI = axios.create({ 
+        baseURL: API_BASE_URL, 
+        withCredentials: true 
+    });
     const [studentData, setStudentData] = useState({ name: '', email: '', phone: '', dob: '', gender: '', city: '', profile: null, password: '', confirmpassword: '', role: '' });
     const [profileView, setProfileView] = useState(null);
-    const baseAPI = axios.create({ baseURL: API_BASE_URL, withCredentials: true });
     const navigate = useNavigate();
 
     useEffect(function () {

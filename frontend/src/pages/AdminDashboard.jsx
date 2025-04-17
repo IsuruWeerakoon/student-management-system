@@ -16,7 +16,10 @@ import { handleDate } from '../components/utils.js';
 
 // AdminDashboard Component for Managing Students, Courses, Exams, and Results
 const AdminDashboard = function ({ onLogout }) {
-    const baseAPI = axios.create({ baseURL: API_BASE_URL, withCredentials: true });
+    const baseAPI = axios.create({ 
+        baseURL: API_BASE_URL, 
+        withCredentials: true 
+    });
     const [activeTab, setActiveTab] = useState('users');
     const [profileModal, setProfileModal] = useState(false);
     const [showSidePanel, setShowSidePanel] = useState(false);
@@ -112,7 +115,7 @@ const AdminDashboard = function ({ onLogout }) {
               if (userRole !== '') {
             setTimeout(async function () {
                 await onLogout();
-            }, 3200);
+            }, 3100);
               }
         }
         catch (error) {

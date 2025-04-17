@@ -13,42 +13,81 @@ exports.getTimetableByTeacher = function (req, res) {
 exports.addTimeSlot = function (req, res) {
     const { teacher_id, course_id, day_of_week, start_time, end_time, room } = req.body;
 
-    TimetableModel.checkForInsert(teacher_id, course_id, day_of_week, start_time, end_time, function (err, result) {
+    TimetableModel.checkForInsert(teacher_id, day_of_week, start_time, end_time, function (err, result) {
         if (err) {
             return res.status(500).json({ message: "Database error" });
         }
         if (result.length > 0) {
-            return res.status(400).json({ message: "This time slot already exists for the teacher and course." });
+            return res.status(400).json({ message: "Time Slot already assigned. Please Try Another Slot" });
         }
         TimetableModel.createTimeSlot(teacher_id, course_id, day_of_week, start_time, end_time, room, function (err, result) {
             if (err) {
                 return res.status(500).json({ message: "Insert failed" });
             }
-            res.status(200).json({ message: "Time slot added successfully" });
+            res.status(200).json({ message: "Time Slot Added Successfully" });
         });
     });
 };
+
+// exports.addTimeSlot = function (req, res) {
+//     const { teacher_id, course_id, day_of_week, start_time, end_time, room } = req.body;
+
+//     TimetableModel.checkForInsert(teacher_id, course_id, day_of_week, start_time, end_time, function (err, result) {
+//         if (err) {
+//             return res.status(500).json({ message: "Database error" });
+//         }
+//         if (result.length > 0) {
+//             return res.status(400).json({ message: "This time slot already exists for the teacher and course." });
+//         }
+//         TimetableModel.createTimeSlot(teacher_id, course_id, day_of_week, start_time, end_time, room, function (err, result) {
+//             if (err) {
+//                 return res.status(500).json({ message: "Insert failed" });
+//             }
+//             res.status(200).json({ message: "Time slot added successfully" });
+//         });
+//     });
+// };
 
 
 exports.updateTimeSlot = function (req, res) {
     const { id } = req.params;
     const { teacher_id, course_id, day_of_week, start_time, end_time, room } = req.body;
 
-    TimetableModel.checkForUpdate(teacher_id, course_id, day_of_week, start_time, end_time, id, function (err, result) {
+    TimetableModel.checkForUpdate(teacher_id, day_of_week, start_time, end_time, id, function (err, result) {
         if (err) {
             return res.status(500).json({ message: "Database error" });
         }
         if (result.length > 0) {
-            return res.status(400).json({ message: "This time slot already exists for the teacher and course." });
+            return res.status(400).json({ message: "Time Slot already assigned. Please Try Another Slot" });
         }
-        TimetableModel.updateTimeSlot(teacher_id, course_id, day_of_week, start_time, end_time, room, id, function(err, result){
-            if(err){
+        TimetableModel.updateTimeSlot(teacher_id, course_id, day_of_week, start_time, end_time, room, id, function (err, result) {
+            if (err) {
                 return res.status(500).json({ message: "Update failed" });
             }
-            res.status(200).json({ message: "Time slot updated successfully" });
+            res.status(200).json({ message: "Time Slot Updated Successfully" });
         });
     });
 };
+
+// exports.updateTimeSlot = function (req, res) {
+//     const { id } = req.params;
+//     const { teacher_id, course_id, day_of_week, start_time, end_time, room } = req.body;
+
+//     TimetableModel.checkForUpdate(teacher_id, course_id, day_of_week, start_time, end_time, id, function (err, result) {
+//         if (err) {
+//             return res.status(500).json({ message: "Database error" });
+//         }
+//         if (result.length > 0) {
+//             return res.status(400).json({ message: "This time slot already exists for the teacher and course." });
+//         }
+//         TimetableModel.updateTimeSlot(teacher_id, course_id, day_of_week, start_time, end_time, room, id, function(err, result){
+//             if(err){
+//                 return res.status(500).json({ message: "Update failed" });
+//             }
+//             res.status(200).json({ message: "Time slot updated successfully" });
+//         });
+//     });
+// };
 
 exports.deleteTimetableSlot = function (req, res) {
     TimetableModel.delete(req.params.id, function (err) {
