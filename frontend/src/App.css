@@ -298,6 +298,8 @@ tr:nth-child(even) {
 .notification-badge {
   position: relative;
   font-weight: bold;
+  top: -25px;
+  right : -5px;
 }
 
 .badge {

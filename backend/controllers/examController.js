@@ -1,4 +1,5 @@
 const examModel = require('../models/examModel.js');
+const { io } = require('../server.js');
 
 exports.getAllExams = function (req, res) {
     examModel.getAllExams(function (err, results) {
@@ -27,6 +28,7 @@ exports.registerExam = function (req, res) {
             if (err2) {
                 return res.status(500).send(err2);
             }
+            io.emit('examChange');
             res.json({ message: 'Exam created successfully' });
         });
     });
@@ -51,6 +53,7 @@ exports.updateExam = function (req, res) {
             if (err2) {
                 return res.status(500).send(err2);
             }
+            io.emit('examChange');
             res.json({ message: 'Exam updated successfully' });
         });
     });
@@ -82,6 +85,7 @@ exports.deleteExamsUsingID = function(req, res){
         if(err){
             return res.status(500).send(err);
         }
+        io.emit('examChange');
         res.json(data);
     });
 };

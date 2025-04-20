@@ -1,4 +1,5 @@
 const enrollmentModel = require('../models/enrollmentModel.js');
+const { io } = require('../server.js');
 
 exports.get_All_Course_And_Enrollments = function (req, res) {
     const studentId = req.user.userID;
@@ -27,6 +28,7 @@ exports.student_Enroll = function (req, res) {
         if (err) {
             return res.status(500).send(err);
         }
+        io.emit('enrollmentChanage');
         res.json({ message: 'Enrolled successfully' });
     });
 };
@@ -39,6 +41,7 @@ exports.student_Unenroll = function (req, res) {
         if (err) {
             return res.status(500).send(err);
         }
+        io.emit('enrollmentChanage');
         res.json({ message: 'Unenrolled successfully' });
     });
 };
@@ -101,6 +104,7 @@ exports.admin_Enroll_Student = function (req, res) {
         if (err) {
             return res.status(500).send(err);
         }
+        io.emit('enrollmentChanage');
         res.json({ message: 'Student enrolled' });
     });
 };
@@ -111,6 +115,7 @@ exports.admin_Unenroll_Student = function (req, res) {
         if (err) {
             return res.status(500).send(err);
         }
+        io.emit('enrollmentChanage');
         res.json({ message: 'Student unenrolled' });
     });
 };
@@ -121,6 +126,7 @@ exports.admin_Assign_Teacher = function (req, res) {
         if (err) {
             return res.status(500).send(err);
         }
+        io.emit('enrollmentChanage');
         res.json({ message: 'Teacher Assigned Successfully..' });
     });
 };
@@ -131,6 +137,7 @@ exports.admin_Unassign_Teacher = function (req, res) {
         if (err) {
             return res.status(500).send(err);
         }
+        io.emit('enrollmentChanage');
         res.json({ message: 'Teacher Unassigned Successfully..' });
     });
 };

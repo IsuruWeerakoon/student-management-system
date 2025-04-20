@@ -37,7 +37,7 @@ function MessageReplyModal(props) {
                     <form
                       onSubmit={function (e) {
                         e.preventDefault();
-                        props.onReplySubmit(e, msg.id);
+                        props.onReplySubmit(e, msg.id, msg.receiver_id);
                       }}
                       className="reply-form"
                     >
@@ -49,7 +49,7 @@ function MessageReplyModal(props) {
                       />
                       <div className="button-container">
                         <button type="submit" className="btn btn-reply">
-                          Send Reply
+                          Reply
                         </button>
                       </div>
                     </form>

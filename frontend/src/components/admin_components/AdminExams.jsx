@@ -3,11 +3,12 @@ import axios from 'axios';
 import API_BASE_URL from '../../config/apiConfig';
 import { toast } from 'react-toastify';
 import { isPastExam, getDaysRemaining } from '../utils.js';
+import socket from '../../config/socket.js';
 
 function AdminExams() {
-    const baseAPI = axios.create({ 
-        baseURL: API_BASE_URL, 
-        withCredentials: true 
+    const baseAPI = axios.create({
+        baseURL: API_BASE_URL,
+        withCredentials: true
     });
     const [exams, setExams] = useState([]);
     const [courses, setCourses] = useState([]);
@@ -19,18 +20,31 @@ function AdminExams() {
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(function () {
+        fetchCourse();
+        function handleCourseChange() { fetchCourse() };
+        socket.on('courseChange', handleCourseChange);
+        return function () { socket.off('courseChange', handleCourseChange) };
+    }, [courses]);
+
+    function fetchCourse() {
         baseAPI.get(`/api/courses`)
             .then(function (res) {
                 setCourses(res.data)
             });
+    };
+
+    useEffect(function () {
         fetchExams();
-    }, []);
+        function handleCourseChange() { fetchExams() };
+        socket.on('examChange', handleCourseChange);
+        return function () { socket.off('examChange', handleCourseChange) };
+    }, [exams]);
 
     function fetchExams() {
         baseAPI.get(`/api/exams`)
             .then(function (res) {
                 setExams(res.data)
-                setFilteredExams(res.data); // reset filtered list
+                setFilteredExams(res.data);
                 setSearchTerm('');
             });
     }

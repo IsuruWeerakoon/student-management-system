@@ -11,10 +11,12 @@ import EnrolledStudentModal from './user_components/teacher/EnrolledStudentModal
 import MessageReplyModal from './user_components/teacher/MessageReplyModal.jsx';
 import { handleDate } from '../components/utils.js';
 
+import socket from '../config/socket.js';
+
 const TeacherDashboard = function ({ onLogout }) {
-  const baseAPI = axios.create({ 
-    baseURL: API_BASE_URL, 
-    withCredentials: true 
+  const baseAPI = axios.create({
+    baseURL: API_BASE_URL,
+    withCredentials: true
   });
   const [teacherID, setTeacherID] = useState(null);
   const navigate = useNavigate();
@@ -34,6 +36,8 @@ const TeacherDashboard = function ({ onLogout }) {
   const [passwordChangeModal, setPasswordChangeModal] = useState(false);
   const [profileModal, setProfileModal] = useState(false);
   const [showSidePanel, setShowSidePanel] = useState(false);
+
+  const [courseID, setCourseID] = useState('');
 
   const timeSlots = [
     { label: "1st Period", start_time: "07:50", end_time: "08:30" },
@@ -65,6 +69,7 @@ const TeacherDashboard = function ({ onLogout }) {
     };
   }, [showSidePanel]);
 
+
   useEffect(function () {
     baseAPI.get(`/api/auth/user`)
       .then(function (response) {
@@ -80,39 +85,9 @@ const TeacherDashboard = function ({ onLogout }) {
 
   useEffect(function () {
     fetchTeacherData();
-  }, []);
-
-  useEffect(function () {
-    if (!teacherID) return;
-    baseAPI.get(`/api/teacher/courses/${teacherID}`)
-      .then(function (response) {
-        setCourses(response.data);
-      })
-      .catch(function (err) {
-        console.log(err);
-      });
-  }, [teacherID]);
-
-  useEffect(function () {
-    if (!teacherID) return;
-    baseAPI.get(`/api/messages/unread-count/${teacherID}`)
-      .then(function (res) {
-        setUnreadCount(res.data.unreadCount);
-      })
-      .catch(function (err) {
-        console.error(err);
-      });
-  }, [teacherID]);
-
-  useEffect(function () {
-    if (!teacherID) return;
-    baseAPI.get(`/api/teacher/timetable/${teacherID}`)
-      .then(function (res) {
-        setTimetable(res.data)
-      })
-      .catch(function (err) {
-        console.error(err)
-      });
+    function handleUserChange() { fetchTeacherData() }
+    socket.on('studentChange', handleUserChange);
+    return function () { socket.off('studentChange', handleUserChange); }
   }, [teacherID]);
 
   function fetchTeacherData() {
@@ -125,7 +100,32 @@ const TeacherDashboard = function ({ onLogout }) {
       })
   }
 
-  async function fetchEnrolledStudents(courseID) {
+  useEffect(function () {
+    fetchAssignedCourse();
+    function handleEnrollmentChange() { fetchAssignedCourse(); };
+    socket.on('enrollmentChanage', handleEnrollmentChange);
+    return function () { socket.off('enrollmentChanage', handleEnrollmentChange); };
+  }, [teacherID]);
+
+  function fetchAssignedCourse() {
+    if (!teacherID) return;
+    baseAPI.get(`/api/teacher/courses/${teacherID}`)
+      .then(function (response) {
+        setCourses(response.data);
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  };
+
+  useEffect(function () {
+    fetchEnrolledStudents();
+    function handleEnrollmentChange() { fetchEnrolledStudents(); };
+    socket.on('enrollmentChanage', handleEnrollmentChange);
+    return function () { socket.off('enrollmentChanage', handleEnrollmentChange); }
+  }, [courseID]);
+
+  async function fetchEnrolledStudents() {
     try {
       const response = await baseAPI.get(`/api/teacher/students/${courseID}`);
       setStudents(response.data);
@@ -133,6 +133,42 @@ const TeacherDashboard = function ({ onLogout }) {
     catch (err) {
       console.error(err)
     }
+  };
+
+  useEffect(function () {
+    fetchMessageCount();
+    function handleMessageChange() { fetchMessageCount(); };
+    socket.on('newMessage', handleMessageChange);
+    return function () { socket.off('newMessage', handleMessageChange); };
+  }, [teacherID]);
+
+  function fetchMessageCount() {
+    if (!teacherID) return;
+    baseAPI.get(`/api/messages/unread-count/${teacherID}`)
+      .then(function (res) {
+        setUnreadCount(res.data.unreadCount);
+      })
+      .catch(function (err) {
+        console.error(err);
+      });
+  }
+
+  useEffect(function () {
+    fetchTimeTable();
+    function handleTimetableChange() { fetchTimeTable(); };
+    socket.on('timetableChange', handleTimetableChange);
+    return function () { socket.off('timetableChange', handleTimetableChange); };
+  }, [teacherID]);
+
+  function fetchTimeTable() {
+    if (!teacherID) return;
+    baseAPI.get(`/api/teacher/timetable/${teacherID}`)
+      .then(function (res) {
+        setTimetable(res.data)
+      })
+      .catch(function (err) {
+        console.error(err)
+      });
   }
 
   async function fetchMessages() {
@@ -145,7 +181,6 @@ const TeacherDashboard = function ({ onLogout }) {
       console.log(err);
     }
   }
-
   function getClassAt(day, time) {
     const slot = timetable.find(function (item) {
       return item.day_of_week === day && item.start_time.startsWith(time);
@@ -222,12 +257,13 @@ const TeacherDashboard = function ({ onLogout }) {
     setPasswords({ ...passwords, [e.target.name]: e.target.value });
   };
 
-  function handleReplySubmit(e, messageId) {
+  function handleReplySubmit(e, messageId, teacherId) {
     e.preventDefault();
     const replyText = e.target.reply.value;
     baseAPI.post(`/api/messages/reply/${messageId}`, {
-        reply: replyText,
-      })
+      reply: replyText,
+      teacherID: teacherId
+    })
       .then(function () {
         toast.success("Reply Sent..");
         return fetchMessages();
@@ -244,11 +280,6 @@ const TeacherDashboard = function ({ onLogout }) {
   return (
     <div className="dashboard-container">
       <h2>Welcome <span className="highlight-username">{teacherData.name}</span> to the Teacher's Dashboard</h2>
-
-      <div className="notification-badge">
-        {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
-      </div>
-
       {teacherData ? (
         <div>
           <div className='profile-container' onClick={function () { setShowSidePanel(!showSidePanel); }}>
@@ -266,6 +297,9 @@ const TeacherDashboard = function ({ onLogout }) {
           </div>
           <div className='admin-dashboard-topbar'>
             <button className='topbar-button' onClick={function () { setMessageModal(true); fetchMessages() }}>My Messages</button>
+            <div className="notification-badge">
+              {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
+            </div>
           </div>
 
           <h3>My TimeTable</h3>
@@ -322,7 +356,7 @@ const TeacherDashboard = function ({ onLogout }) {
                         <td>{course.course_name}</td>
                         <td>{course.course_description}</td>
                         <td>
-                          <button className='btn btn-success' onClick={function () { setStudentModal(true); fetchEnrolledStudents(course.id) }}>Enrolled Students</button>
+                          <button className='btn btn-success' onClick={function () { setStudentModal(true); setCourseID(course.id) }}>Enrolled Students</button>
                           <button className='btn btn-success' onClick={function () { navigate('/teacher/exams/' + course.id) }}>Manage My Exams</button>
                         </td>
                       </tr>

@@ -1,5 +1,6 @@
 const TimetableModel = require('../models/TimetableModel');
 const db = require('../dbModel.js');
+const { io } = require('../server.js');
 
 exports.getTimetableByTeacher = function (req, res) {
     TimetableModel.getByTeacherId(req.params.teacherId, function (err, result) {
@@ -24,6 +25,7 @@ exports.addTimeSlot = function (req, res) {
             if (err) {
                 return res.status(500).json({ message: "Insert failed" });
             }
+            io.emit('timetableChange');
             res.status(200).json({ message: "Time Slot Added Successfully" });
         });
     });
@@ -64,6 +66,7 @@ exports.updateTimeSlot = function (req, res) {
             if (err) {
                 return res.status(500).json({ message: "Update failed" });
             }
+            io.emit('timetableChange');
             res.status(200).json({ message: "Time Slot Updated Successfully" });
         });
     });
@@ -94,6 +97,7 @@ exports.deleteTimetableSlot = function (req, res) {
         if (err) {
             return res.status(500).json({ error: err });
         }
+        io.emit('timetableChange');
         res.json({ message: "Time slot deleted" });
     });
 };

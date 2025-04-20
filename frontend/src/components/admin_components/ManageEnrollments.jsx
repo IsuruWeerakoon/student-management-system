@@ -3,11 +3,12 @@ import axios from 'axios';
 import API_BASE_URL from '../../config/apiConfig';
 import { toast } from 'react-toastify';
 import StudentEnrollmentModal from './StudentEnrollmentModal';
+import socket from '../../config/socket';
 
 function ManageEnrollments() {
-    const baseAPI = axios.create({ 
-        baseURL: API_BASE_URL, 
-        withCredentials: true 
+    const baseAPI = axios.create({
+        baseURL: API_BASE_URL,
+        withCredentials: true
     });
     const [students, setStudents] = useState([]);
     const [teachers, setTeachers] = useState([]);
@@ -36,13 +37,21 @@ function ManageEnrollments() {
     }, []);
 
     useEffect(function () {
+        fetchEnrollments();
+        function handleEnrollmentChange() { fetchEnrollments() };
+        socket.on('enrollmentChange', handleEnrollmentChange);
+        return function () { socket.off('enrollmentChange', handleEnrollmentChange); }
+
+    }, [selectedStudentId, enrolledStudentIds]);
+
+    function fetchEnrollments() {
         if (!selectedStudentId) return;
         baseAPI.get(`/api/admin/student-courses/${selectedStudentId}`)
             .then(function (response) {
                 setStudentCourses(response.data.allCourses);
                 setEnrolledStudentIds(response.data.enrolledCourseIds);
             });
-    }, [selectedStudentId]);
+    }
 
     useEffect(function () {
         if (!selectedTeacherId) return;

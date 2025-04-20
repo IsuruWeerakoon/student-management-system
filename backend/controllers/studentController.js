@@ -1,6 +1,7 @@
 const studentModel = require('../models/studentModel.js');
 const bcrypt = require('bcryptjs');
 const fs = require('fs');
+const { io } = require('../server.js');
 
 exports.getAllStudents = function (req, res) {
     studentModel.retrieveAll(function (err, result) {
@@ -32,6 +33,7 @@ exports.registerStudent = async function (req, res) {
             if (err) {
                 return res.status(500).json({ message: 'Email Address Already Exists..' });
             }
+            io.emit('studentChange');
             res.json({ message: 'Student Registered Successfully..' });
         });
     }
@@ -41,6 +43,7 @@ exports.registerStudent = async function (req, res) {
             if (err) {
                 return res.status(500).json({ message: 'Email Address Already Exists..' });
             }
+            io.emit('studentChange');
             res.json({ message: 'Student Registered Successfully..' });
         });
     }
@@ -67,6 +70,7 @@ exports.updateStudent = function (req, res) {
                 // return res.status(400).json({ message: err });
                 return res.status(400).json({ message: "Email Address Already Exists" });
             }
+            io.emit('studentChange');
             res.json({ message: "Profile Updated Successfully.." });
         });
     }
@@ -86,6 +90,7 @@ exports.updateStudent = function (req, res) {
                         // return res.status(400).json({ message: err });
                         return res.status(400).json({ message: "Email Address Already Exists" });
                     }
+                    io.emit('studentChange');
                     res.json({ message: "Profile Updated Successfully.." });
                 });
             }
@@ -99,6 +104,7 @@ exports.updateStudent = function (req, res) {
                             // return res.status(400).json({ message: err });
                             return res.status(400).json({ message: "Email Address Already Exists" });
                         }
+                        io.emit('studentChange');
                         res.json({ message: "Profile Updated Successfully.." });
                     });
                 });
@@ -140,6 +146,7 @@ exports.deleteStudent = function (req, res) {
                 if (err) {
                     console.log(err);
                 }
+                io.emit('studentChange');
                 res.json({ message: 'Student Record Deleted Successfully..' });
             });
         }
@@ -152,23 +159,10 @@ exports.deleteStudent = function (req, res) {
                     if (err) {
                         console.log(err);
                     }
+                    io.emit('studentChange');
                     res.json({ message: 'Student Record Deleted Successfully..' });
                 });
             });
         }
     });
 };
-
-// exports.searchStudents = function (req, res) {
-//     const search = req.query.search;
-//     const likeSearch = `%${search}%`;
-//     if (!search) {
-//         return res.status(400).json({ error: 'Missing search query' });
-//     }
-//     studentModel.searchStudents(likeSearch, function (err, data) {
-//         if (err) {
-//             return res.status(500).json({ error: 'Database error' });
-//         }
-//         res.json(data);
-//     });
-// };

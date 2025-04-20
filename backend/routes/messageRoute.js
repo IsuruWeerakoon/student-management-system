@@ -17,6 +17,10 @@ router.post('/messages/reply/:messageId', authenticateUser, authorizeRoles('teac
 // TeacherDashboard.jsx
 router.get('/messages/unread-count/:teacherId', authenticateUser, authorizeRoles('teacher'), messageController.getUnreadCount);
 
+//StudentDashboard.jsx
+router.get('/messages/unread-student-count/:studentId', authenticateUser, messageController.getUnreadStudentCount);
+
+
 // StudentDashboard.jsx
 router.get('/messages/student/:studentId', authenticateUser, messageController.getMessagesForStudent);
 

@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import API_BASE_URL from '../../config/apiConfig';
+import socket from '../../config/socket.js';
 
 function AdminResults() {
-    const baseAPI = axios.create({ 
-        baseURL: API_BASE_URL, 
-        withCredentials: true 
+    const baseAPI = axios.create({
+        baseURL: API_BASE_URL,
+        withCredentials: true
     });
     const [results, setResults] = useState([]);
     const [students, setStudents] = useState([]);
@@ -20,10 +21,49 @@ function AdminResults() {
     const [examName, setExamName] = useState('');
 
     useEffect(function () {
+        fetchResults();
+        function handleResultChange() {
+            fetchResults();
+            setForm(defaultForm);
+            setButtonState('');
+        }
+        socket.on('resultChange', handleResultChange);
+        return function () {
+            socket.off('resultChange', handleResultChange);
+        };
+    }, [results]);
+
+
+    useEffect(function () {
+        fetchStudents();
+        function handleStudentChange() {
+            fetchStudents();
+        }
+        socket.on('studentChange', handleStudentChange);
+        return function () {
+            socket.off('studentChange', handleStudentChange);
+        };
+    }, [students]);
+
+    useEffect(function () {
+        fetchExams();
+        function handleExamChange() {
+            fetchExams();
+        }
+        socket.on('examChange', handleExamChange);
+        return function () {
+            socket.off('examChange', handleExamChange);
+        };
+    }, [exams]);
+
+    function fetchResults() {
         baseAPI.get(`/api/results`)
             .then(function (res) {
                 setResults(res.data)
             });
+    }
+
+    function fetchStudents() {
         baseAPI.get(`/api/students`)
             .then(function (res) {
                 const filteredStudents = res.data.filter(function (student) {
@@ -31,11 +71,14 @@ function AdminResults() {
                 });
                 setStudents(filteredStudents);
             });
+    }
+
+    function fetchExams() {
         baseAPI.get(`/api/exams`)
             .then(function (res) {
                 setExams(res.data)
             });
-    }, []);
+    }
 
     function handleChange(e) {
         const { name, value } = e.target;

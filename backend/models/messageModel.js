@@ -19,18 +19,26 @@ const Message = {
         AND messages.sender_role = 'student' 
         ORDER BY created_at DESC
         `;
-        const sql_update_query = `
-        UPDATE messages 
-        SET is_read = 1 
-        WHERE receiver_id = ? 
-        AND sender_role = 'student'
-        `;
-        db.query(sql_update_query, teacherID);
+        // const sql_update_query = `
+        // UPDATE messages 
+        // SET is_read = 1 
+        // WHERE receiver_id = ? 
+        // AND sender_role = 'student'
+        // `;
+        // db.query(sql_update_query, teacherID);
         db.query(sql_query, [teacherID], callback);
     },
 
-    replyToStudentMessage: function (messageId, replyMessage, callback) {
+    replyToStudentMessage: function (messageId, teacherID, replyMessage, callback) {
         const sql_query = `UPDATE messages SET reply = ? WHERE id = ?`;
+        const sql_update_query = `
+        UPDATE messages 
+        SET is_read = 1, is_reply = 1 
+        WHERE receiver_id = ? 
+        AND sender_role = 'student'
+        AND id = ?
+        `;
+        db.query(sql_update_query, [teacherID, messageId]);
         db.query(sql_query, [replyMessage, messageId], callback);
     },
 
@@ -45,6 +53,25 @@ const Message = {
         db.query(sql_query, [teacherID], callback);
     },
 
+
+
+
+
+    retrieveStudentUnreadCount: function (studentID, callback) {
+        const sql_query = `
+        SELECT COUNT(*) AS unreadCount 
+        FROM messages 
+        WHERE sender_id = ? 
+        AND sender_role = 'student' 
+        AND is_reply = 1 
+        AND readStatus = 0 
+        `;
+        db.query(sql_query, [studentID], callback);
+    },
+
+
+
+
     retrieveMessageForStudent: function (studentId, callback) {
         const sql_query = `
         SELECT messages.*, students.name AS teacher_name 
@@ -54,6 +81,12 @@ const Message = {
         AND messages.sender_role = 'student' 
         ORDER BY created_at DESC
         `;
+        const sql_update_query = `
+        UPDATE messages 
+        SET readStatus = 1 
+        WHERE sender_id = ? AND is_reply = 1
+        `;
+        db.query(sql_update_query, [studentId]);
         db.query(sql_query, [studentId], callback);
     }
 };

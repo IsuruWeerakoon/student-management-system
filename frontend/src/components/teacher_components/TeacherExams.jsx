@@ -6,11 +6,12 @@ import { toast } from 'react-toastify';
 import TeacherExamModal from './TeacherExamModal';
 import TeacherResultsModal from './TeacherResultsModal';
 import { isPastExam, getDaysRemaining } from '../utils.js';
+import socket from '../../config/socket.js';
 
 function TeacherExams() {
-    const baseAPI = axios.create({ 
-        baseURL: API_BASE_URL, 
-        withCredentials: true 
+    const baseAPI = axios.create({
+        baseURL: API_BASE_URL,
+        withCredentials: true
     });
     const { courseID } = useParams();
     const navigate = useNavigate();
@@ -27,6 +28,34 @@ function TeacherExams() {
     const [form, setForm] = useState(defaultForm);
 
     useEffect(function () {
+        fetchStudents();
+        function handleEnrollmentChange() { fetchStudents(); };
+        socket.on('enrollmentChanage', handleEnrollmentChange);
+        return function () { socket.off('enrollmentChanage', handleEnrollmentChange); };
+    }, [courseID]);
+
+    useEffect(function () {
+        fetchCourse();
+        function handleCourseChange() { fetchCourse(); };
+        socket.on('courseChange', handleCourseChange);
+        return function () { socket.off('courseChange', handleCourseChange); };
+    }, [courseID]);
+
+    useEffect(function () {
+        fetchExams();
+        function handleExamChange() { fetchExams(); };
+        socket.on('examChange', handleExamChange);
+        return function () { socket.off('examChange', handleExamChange); };
+    }, [courseID]);
+
+    useEffect(function () {
+        fetchResults();
+        function handleResultChange() { fetchResults(); };
+        socket.on('resultChange', handleResultChange);
+        return function () { socket.off('resultChange', handleResultChange); };
+    }, [resultsModal, examID]);
+
+    function fetchStudents() {
         if (!courseID) return;
         baseAPI.get(`/api/teacher/students/${courseID}`)
             .then(function (response) {
@@ -35,7 +64,10 @@ function TeacherExams() {
             .catch(function (err) {
                 console.log(err);
             });
+    }
 
+    function fetchCourse() {
+        if (!courseID) return;
         baseAPI.get(`/api/courses/${courseID}`)
             .then(function (response2) {
                 setCourses(response2.data)
@@ -43,10 +75,19 @@ function TeacherExams() {
             .catch(function (err2) {
                 console.log(err2);
             });
-        fetchExams();
-    }, [courseID]);
+    }
 
-    useEffect(function () {
+    async function fetchExams() {
+        try {
+            const response = await baseAPI.get(`/api/exams/${courseID}`);
+            setExams(response.data);
+        }
+        catch (err) {
+            console.error(err)
+        }
+    }
+
+    function fetchResults() {
         if (resultsModal && examID) {
             baseAPI.get(`/api/results/existing/exam/${examID}`)
                 .then(function (res) {
@@ -58,7 +99,7 @@ function TeacherExams() {
                     setResults(existing);
                 });
         }
-    }, [resultsModal, examID]);
+    }
 
     const hasExistingResults = Object.keys(existingResults).length > 0;
 
@@ -155,7 +196,7 @@ function TeacherExams() {
             <div className="button-container">
                 <button className='btn btn-reply' type='button' onClick={function () { setShowModal(true) }}>Register New Examinations</button>
             </div>
-            <br/>
+            <br />
             <div className='table-container'>
                 <table>
                     <thead>

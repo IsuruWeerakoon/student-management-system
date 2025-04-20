@@ -1,4 +1,5 @@
 const resultsModel = require('../models/resultModel.js');
+const { io } = require('../server.js');
 
 exports.getAllResults = function (req, res) {
     resultsModel.getAllResults(function (err, results) {
@@ -14,6 +15,7 @@ exports.addOrUpdateResults = function (req, res) {
         if (err) {
             return res.status(500).json({ error: err });
         }
+        io.emit('resultChange');
         res.json(result);
     });
 };
@@ -67,6 +69,7 @@ exports.submitOrUpdateResults = function (req, res) {
         if (err) {
             return res.status(500).json({ error: err });
         }
+        io.emit('resultChange');
         res.json({ message: 'Results submitted or updated successfully.' });
     });
 };

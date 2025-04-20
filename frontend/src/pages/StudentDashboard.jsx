@@ -11,12 +11,13 @@ import ProfilePanel from './user_components/common/ProfilePanel.jsx';
 import { isPastExam, getDaysRemaining, handleDate } from '../components/utils.js'
 
 import API_BASE_URL from '../config/apiConfig';
+import socket from '../config/socket.js';
 
 // StudentDashboard Component for Viewing Courses, Exams, and Results
 const StudentDashboard = function ({ onLogout }) {
-  const baseAPI = axios.create({ 
-    baseURL: API_BASE_URL, 
-    withCredentials: true 
+  const baseAPI = axios.create({
+    baseURL: API_BASE_URL,
+    withCredentials: true
   });
   const [studentData, setStudentData] = useState([]);
   const [studentId, setStudentId] = useState(null);
@@ -40,6 +41,8 @@ const StudentDashboard = function ({ onLogout }) {
   const [profileModal, setProfileModal] = useState(false);
   const [showSidePanel, setShowSidePanel] = useState(false);
 
+  const [unreadCount, setUnreadCount] = useState(0);
+
   const panelRef = useRef(null);
 
   useEffect(function () {
@@ -59,6 +62,7 @@ const StudentDashboard = function ({ onLogout }) {
     };
   }, [showSidePanel]);
 
+
   useEffect(function () {
     baseAPI.get(`/api/auth/user`)
       .then(function (response) {
@@ -71,6 +75,13 @@ const StudentDashboard = function ({ onLogout }) {
   }, []);
 
   useEffect(function () {
+    fetchAllCourse();
+    function handleCourseChange() { fetchAllCourse(); };
+    socket.on('courseChange', handleCourseChange);
+    return function () { socket.off('courseChange', handleCourseChange); };
+  }, [enrolledIds]);
+
+  function fetchAllCourse() {
     baseAPI.get(`/api/`)
       .then(function (res) {
         setCourses(res.data.allCourses);
@@ -81,17 +92,53 @@ const StudentDashboard = function ({ onLogout }) {
         console.error(err);
         toast.error(err.response?.data?.message)
       });
-  }, []);
+  }
 
   useEffect(function () {
     fetchStudentData();
-  }, []);
-
-  useEffect(function () {
-    fetchMessages();
+    function handleUserChange() { fetchStudentData() }
+    socket.on('studentChange', handleUserChange);
+    return function () { socket.off('studentChange', handleUserChange); }
   }, [studentId]);
 
+  function fetchMessages() {
+    if (!studentId) return; // wait until we have studentId
+    baseAPI.get(`/api/messages/student/${studentId}`)
+      .then(function (res) {
+        setMyMessages(res.data);
+      })
+      .catch(function (err) {
+        console.error(err)
+      });
+  }
+
   useEffect(function () {
+    fetchMessageCount();
+    function handleMessageChange() { fetchMessageCount(); };
+    socket.on('newMessage', handleMessageChange);
+    return function () { socket.off('newMessage', handleMessageChange); };
+  }, [studentId]);
+
+  function fetchMessageCount() {
+    if (!studentId) return;
+    console.log(studentId);
+    baseAPI.get(`/api/messages/unread-student-count/${studentId}`)
+      .then(function (res) {
+        setUnreadCount(res.data.unreadCount);
+      })
+      .catch(function (err) {
+        console.error(err);
+      });
+  }
+
+  useEffect(function () {
+    fetchMyExams();
+    function handleExamChange() { fetchMyExams(); };
+    socket.on('examChange', handleExamChange);
+    return function () { socket.off('examChange', handleExamChange); };
+  }, []);
+
+  function fetchMyExams() {
     baseAPI.get(`/api/exams/studentdata`)
       .then(function (res) {
         const sortedExams = res.data.sort(function (a, b) {
@@ -102,16 +149,30 @@ const StudentDashboard = function ({ onLogout }) {
       .catch(function (err) {
         console.error(err);
       });
-  }, []);
+  }
 
   useEffect(function () {
+    fetchMyResults();
+    function handleResultChange() { fetchMyResults(); };
+    socket.on('resultChange', handleResultChange);
+    return function () { socket.off('resultChange', handleResultChange); };
+  }, []);
+
+  function fetchMyResults() {
     baseAPI.get(`/api/results/student`)
       .then(function (res) {
         setResults(res.data)
       });
-  }, []);
+  };
 
   useEffect(function () {
+    fetchTeachers();
+    function handleTeacherChange() { fetchTeachers() };
+    socket.on('studentChange', handleTeacherChange);
+    return function () { socket.off('studentChange', handleTeacherChange); }
+  }, []);
+
+  function fetchTeachers() {
     baseAPI.get(`/api/teachers`)
       .then(function (res) {
         setTeacherList(res.data)
@@ -119,7 +180,7 @@ const StudentDashboard = function ({ onLogout }) {
       .catch(function (err) {
         console.error('Failed to load teacher list:', err)
       });
-  }, []);
+  }
 
   async function fetchStudentData() {
     try {
@@ -131,7 +192,7 @@ const StudentDashboard = function ({ onLogout }) {
       toast.error(err.response?.data?.message);
     }
   };
-
+  
   function handleEnroll(courseId) {
     if (enrolledIds.includes(courseId)) {
       return toast.warn('Already enrolled in this course.');
@@ -170,7 +231,7 @@ const StudentDashboard = function ({ onLogout }) {
         toast.success('Message Sent..');
         setMessageText('');
         setMessageModal(false);
-        fetchMessages();
+        // fetchMessages();
       })
       .catch(function (err) {
         console.error(err)
@@ -279,6 +340,10 @@ const StudentDashboard = function ({ onLogout }) {
           <div className='admin-dashboard-topbar'>
             <button className='topbar-button' onClick={function () { setEnrollmentModal(true) }}>Enroll in a Course</button>
             <button className='topbar-button' onClick={function () { setMessageModal(true); }}>Message Teacher</button>
+            <button className='topbar-button' onClick={function () { setViewAllMessagesModal(true); setUnreadCount(0); fetchMessages(); }}>My Messages</button>
+            <div className="notification-badge">
+              {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
+            </div>
           </div>
           < h3 > My Exams</h3>
           {!exams.length > 0 ? (<p>No Exams to Show</p>) : (
@@ -325,7 +390,7 @@ const StudentDashboard = function ({ onLogout }) {
           <br />
           <hr />
 
-          <h3>Recent Messages</h3>
+          {/* <h3>Recent Messages</h3>
           <div>
             <ul className="message-list">
               {myMessages && myMessages.length === 0 ? (
@@ -366,7 +431,7 @@ const StudentDashboard = function ({ onLogout }) {
           </div>
 
           <br />
-          <hr />
+          <hr /> */}
 
           <div className='table-container'>
             <h3>My Exam Results</h3>

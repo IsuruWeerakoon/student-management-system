@@ -5,11 +5,12 @@ import API_BASE_URL from '../../config/apiConfig';
 import { toast } from 'react-toastify';
 import ProfileModal from '../../pages/user_components/common/ProfileModal.jsx';
 import { handleDate } from '../utils.js';
+import socket from '../../config/socket.js';
 
 const ManageStudents = function () {
-    const baseAPI = axios.create({ 
-        baseURL: API_BASE_URL, 
-        withCredentials: true 
+    const baseAPI = axios.create({
+        baseURL: API_BASE_URL,
+        withCredentials: true
     });
     const [studentData, setStudentData] = useState({ name: '', email: '', phone: '', dob: '', gender: '', city: '', profile: null, role: '' });
     const [profileView, setProfileView] = useState(null);
@@ -23,6 +24,9 @@ const ManageStudents = function () {
 
     useEffect(function () {
         fetchUsers();
+        function handleUserChange() { fetchUsers() }
+        socket.on('studentChange', handleUserChange);
+        return function () { socket.off('studentChange', handleUserChange); }
     }, [refreshKey]);
 
     function fetchUsers() {
@@ -69,7 +73,7 @@ const ManageStudents = function () {
 
     async function fetchUserData(studentID) {
         try {
-            if(!studentID) return;
+            if (!studentID) return;
             setStudentId(studentID);
             const response = await baseAPI.get(`/api/students/${studentID}`);
             setStudentData(response.data);
@@ -117,7 +121,7 @@ const ManageStudents = function () {
         catch (err) {
             console.error('Error updating data:', err);
             toast.error(err.response?.data?.message);
-            
+
         }
     };
 
@@ -129,13 +133,13 @@ const ManageStudents = function () {
             <div className='button-container'>
                 <button className='btn btn-success' onClick={goToRegister}>Register a New User</button>
             </div>
-                <input
-                    type="text"
-                    placeholder="Search for Users..."
-                    value={searchTerm}
-                    onChange={handleSearch}
-                    style={{ marginBottom: '10px', padding: '5px', width: '300px' }}
-                />
+            <input
+                type="text"
+                placeholder="Search for Users..."
+                value={searchTerm}
+                onChange={handleSearch}
+                style={{ marginBottom: '10px', padding: '5px', width: '300px' }}
+            />
             <div>
                 <div className="table-container">
                     <table >

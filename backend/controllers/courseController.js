@@ -1,4 +1,5 @@
 const courseModel = require('../models/courseModel.js');
+const { io } = require('../server.js');
 
 exports.getAllCourse = function (req, res) {
     courseModel.retrieveAll(function (err, data) {
@@ -8,19 +9,6 @@ exports.getAllCourse = function (req, res) {
         res.json(data);
     });
 };
-
-// exports.getCourseByTokenID = function (req, res) {
-//     const courseID = req.user.userID;
-    // courseModel.retrieveByID(courseID, function (err, data) {
-//         if (err) {
-//             return res.status(500).json({ error: "Database Error" });
-//         }
-//         if (data.length === 0) {
-//             return res.status(404).json({ error: "Course Details not Found" });
-//         }
-//         res.json(data[0]);
-//     });
-// };
 
 exports.getCourseByParamID = function (req, res) {
     const courseID = req.params.id;
@@ -38,6 +26,7 @@ exports.registerCourse = function (req, res) {
         if (err) {
             return res.status(500).json({ message: 'Course Already Registered..' });
         }
+        io.emit('courseChange');
         res.json({ message: 'Course Registered Successfully..' });
     });
 };
@@ -49,6 +38,7 @@ exports.updateCourse = function (req, res) {
         if (err) {
             return res.status(400).json({ message: "Course Already Registered.." });
         }
+        io.emit('courseChange');
         res.json({ message: "Course Details Updated Successfully.." });
     });
 };
@@ -59,20 +49,7 @@ exports.deleteCourse = function (req, res) {
         if (err) {
             console.log(err);
         }
+        io.emit('courseChange');
         res.json({ message: 'Course Details Deleted Successfully..' });
     });
 };
-
-// exports.searchCourse = function (req, res) {
-//     const search = req.query.search;
-//     const likeSearch = `%${search}%`;
-//     if (!search) {
-//         return res.status(400).json({ error: 'Missing search query' });
-//     }
-    // courseModel.searchCourse(likeSearch, function (err, data) {
-//         if (err) {
-//             return res.status(500).json({ error: 'Database error' });
-//         }
-//         res.json(data);
-//     });
-// };

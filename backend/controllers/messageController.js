@@ -1,4 +1,5 @@
 const messageModel = require('../models/messageModel.js');
+const { io } = require('../server.js');
 
 exports.sendMessage = function (req, res) {
     const { sender_id, receiver_id, sender_role, message } = req.body;
@@ -6,6 +7,7 @@ exports.sendMessage = function (req, res) {
         if (err) {
             console.log(err);
         }
+        io.emit('newMessage');
         res.json({ message: "Message Sent.." });
     });
 };
@@ -22,11 +24,12 @@ exports.getMessagesForTeacher = function (req, res) {
 
 exports.replyToMessage = function (req, res) {
     const messageId = req.params.messageId;
-    const { reply } = req.body;
-    messageModel.replyToStudentMessage(messageId, reply, function (err, result) {
+    const { reply, teacherID } = req.body;
+    messageModel.replyToStudentMessage(messageId, teacherID, reply, function (err, result) {
         if (err) {
             return res.status(500).json(err);
         }
+        io.emit('newMessage');
         res.json({ message: 'Reply sent' });
     });
 };
@@ -34,6 +37,17 @@ exports.replyToMessage = function (req, res) {
 exports.getUnreadCount = function (req, res) {
     const teacherId = req.params.teacherId;
     messageModel.retrieveUnreadCount(teacherId, function (err, result) {
+        if (err) {
+            return res.status(500).json(err);
+        }
+        res.json(result[0]);
+    });
+};
+
+
+exports.getUnreadStudentCount = function (req, res) {
+    const studentId = req.params.studentId;
+    messageModel.retrieveStudentUnreadCount(studentId, function (err, result) {
         if (err) {
             return res.status(500).json(err);
         }
