@@ -40,36 +40,36 @@ A full-stack web application to manage students, courses, exams, and results wit
 
 ## 🚀 Getting Started
 
-### 1. Clone the repository
+## 1. Clone the repository
 
 ```bash
 git clone https://github.com/IsuruWeerakoon/student-management-system.git
 cd student-management-system
 ```
 
-### 2. Database Setup
+## 2. Database Setup
 ```
 - import student_management_system.sql file to your database server
 ```
 
-### 3. Backend Setup
+## 3. Backend Setup
 ```bash
 cd backend
 npm install
 npm start
-
-# Set up your MySQL database and connection in a .env file by editing the file in backend folder
-- DB_HOST = localhost
-- DB_USER = root
-- DB_PASSWORD = change to your password
-- DB_NAME = change to your database name
-- DB_TIMEZONE = Z
 ```
-### 4. Frontend Setup
+### Set up your MySQL database and connection in a .env file by editing the file in backend folder
+```bash
+DB_HOST = localhost
+DB_USER = root
+DB_PASSWORD = 'Note : Change to your password'
+DB_NAME = 'Note : Change to your database name'
+DB_TIMEZONE = Z
+```
+## 4. Frontend Setup
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-
 >>>>>>> 457c7861de309482722613acc995ac1e96913874
